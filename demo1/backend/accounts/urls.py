@@ -18,6 +18,7 @@ urlpatterns = [
     path("me/growth/", views.growth_records),
     path("recommendations/", views.recommendations),
     path("mentors/", views.mentor_list),
+    path("mentors/<int:mentor_id>/consult/", views.consult_mentor),
     path("auth/register/", views.register),
     path("auth/login/", views.login),
     path("auth/me/", views.me),

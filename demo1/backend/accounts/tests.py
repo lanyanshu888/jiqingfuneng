@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.core.management import call_command
 from django.test import TestCase
 
-from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Opportunity, Policy, YouthProfile
+from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy, YouthProfile
 
 
 class ApiAuthenticationTests(TestCase):
@@ -96,6 +96,26 @@ class RecommendationApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["opportunity"]["title"], "本地实习")
+
+
+class MentorConsultationApiTests(TestCase):
+    def test_consultation_is_saved_and_returned_in_growth_records(self):
+        user = User.objects.create_user(username="consult", password="secret123")
+        token = AuthToken.create_for_user(user)
+        mentor = Mentor.objects.create(title="赵老师", status="published", available="周日")
+        headers = {"HTTP_AUTHORIZATION": f"Token {token.key}"}
+
+        response = self.client.post(
+            f"/api/mentors/{mentor.id}/consult/",
+            data='{"question":"如何准备创业计划书？"}',
+            content_type="application/json",
+            **headers,
+        )
+        records = self.client.get("/api/me/growth/", **headers)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(MentorConsultation.objects.filter(user=user, mentor=mentor).exists())
+        self.assertEqual(records.json()["consultations"][0]["question"], "如何准备创业计划书？")
 
 
 class EnrollmentApiTests(TestCase):

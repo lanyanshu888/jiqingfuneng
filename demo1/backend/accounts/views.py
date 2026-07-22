@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 from .models import AuthToken, YouthProfile
 from django.utils import timezone
 
-from .models import Activity, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, Opportunity, Policy
+from .models import Activity, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy
 
 
 def json_body(request):
@@ -259,6 +259,32 @@ def mentor_list(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @auth_required
+def consult_mentor(request, mentor_id):
+    mentor = Mentor.objects.filter(id=mentor_id, status=Mentor.STATUS_PUBLISHED).first()
+    if not mentor:
+        return JsonResponse({"message": "导师不存在"}, status=404)
+    data = json_body(request)
+    question = (data.get("question") or "").strip()
+    if not question:
+        return JsonResponse({"message": "咨询问题不能为空"}, status=400)
+    consultation = MentorConsultation.objects.create(
+        user=request.user,
+        mentor=mentor,
+        question=question,
+        scheduled_at=(data.get("scheduledAt") or mentor.available),
+    )
+    GrowthEvent.objects.create(
+        user=request.user,
+        event_type="mentor_consulted",
+        resource_type="mentor",
+        resource_id=mentor.id,
+    )
+    return JsonResponse({"message": "咨询已提交", "consultationId": consultation.id}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@auth_required
 def enroll_activity(request, activity_id):
     activity = Activity.objects.filter(id=activity_id, status=Activity.STATUS_PUBLISHED).first()
     if not activity:
@@ -326,10 +352,18 @@ def growth_records(request):
     activity_enrollments = Enrollment.objects.filter(user=request.user, activity__isnull=False).select_related("activity").order_by("-created_at")
     opportunity_enrollments = Enrollment.objects.filter(user=request.user, opportunity__isnull=False).select_related("opportunity").order_by("-created_at")
     completed_courses = CourseProgress.objects.filter(user=request.user, completed=True).select_related("course").order_by("-completed_at")
+    consultations = MentorConsultation.objects.filter(user=request.user).select_related("mentor").order_by("-created_at")
     return JsonResponse({
         "activities": [resource_payload(item.activity) for item in activity_enrollments],
         "opportunities": [resource_payload(item.opportunity) for item in opportunity_enrollments],
         "courses": [resource_payload(item.course) for item in completed_courses],
+        "consultations": [{
+            "id": item.id,
+            "mentor": item.mentor.title,
+            "question": item.question,
+            "status": item.status,
+            "scheduledAt": item.scheduled_at,
+        } for item in consultations],
     })
 
 
