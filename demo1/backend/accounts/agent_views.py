@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from .agent_auth import agent_service_required, agent_skill
 from .agent_protocol import agent_response
+from .agent_services import profile_context_data, update_profile_from_agent
 from .models import AgentBindingCode, AgentUserBinding
 from .views import auth_required, json_body
 
@@ -130,8 +131,21 @@ def bind_account(request):
 @require_http_methods(["POST"])
 @agent_skill("profile_context")
 def profile_context(request):
+    data = request.agent_data
+    if data.get("operation") == "update":
+        changes = data.get("changes") if isinstance(data.get("changes"), dict) else {}
+        if not data.get("confirmed"):
+            return agent_response(
+                ok=True,
+                message="请确认是否更新青年画像",
+                data={"changes": changes},
+                requires_confirmation=True,
+            )
+        context = update_profile_from_agent(request.agent_user, changes)
+        return agent_response(ok=True, message="青年画像已更新", data=context)
+
     return agent_response(
         ok=True,
         message="画像已读取",
-        data={"profile": {}, "missingFields": [], "recentGrowth": []},
+        data=profile_context_data(request.agent_user),
     )
