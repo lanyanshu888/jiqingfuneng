@@ -29,7 +29,7 @@
 - Create: `demo1/backend/accounts/test_deployment_settings.py`
 - Modify: `demo1/backend/jiqing_backend/settings.py`
 
-- [ ] **Step 1: Write failing subprocess tests**
+- [x] **Step 1: Write failing subprocess tests**
 
 Create tests that invoke `manage.py check` with controlled environments:
 
@@ -113,19 +113,17 @@ class DeploymentSettingsTests(SimpleTestCase):
         self.assertEqual(result.stdout.strip(), expected)
 ```
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run: `cd demo1/backend && .venv/bin/python manage.py test accounts.test_deployment_settings -v 2`
 
 Expected: the first two tests fail because settings currently accept insecure production defaults.
 
-- [ ] **Step 3: Add minimal settings validation and database path support**
+- [x] **Step 3: Add minimal settings validation and database path support**
 
 In `settings.py`, import `ImproperlyConfigured`, define the development default once, read `JIQING_SQLITE_PATH`, and reject insecure production values:
 
 ```python
-from django.core.exceptions import ImproperlyConfigured
-
 DEV_SECRET_KEY = "dev-only-change-before-deploy"
 SECRET_KEY = os.environ.get("JIQING_SECRET_KEY", DEV_SECRET_KEY)
 DEBUG = os.environ.get("JIQING_DEBUG", "true").lower() == "true"
@@ -137,11 +135,11 @@ ALLOWED_HOSTS = [
 AGENT_SERVICE_KEY = os.environ.get("JIQING_AGENT_SERVICE_KEY", "")
 
 if not DEBUG and SECRET_KEY == DEV_SECRET_KEY:
-    raise ImproperlyConfigured("生产环境必须设置独立的 JIQING_SECRET_KEY")
+    raise RuntimeError("生产环境必须设置独立的 JIQING_SECRET_KEY")
 if not DEBUG and len(AGENT_SERVICE_KEY) < 32:
-    raise ImproperlyConfigured("生产环境的 JIQING_AGENT_SERVICE_KEY 不少于32个字符")
+    raise RuntimeError("生产环境的 JIQING_AGENT_SERVICE_KEY 不少于32个字符")
 if not DEBUG and not ALLOWED_HOSTS:
-    raise ImproperlyConfigured("生产环境必须设置 JIQING_ALLOWED_HOSTS")
+    raise RuntimeError("生产环境必须设置 JIQING_ALLOWED_HOSTS")
 
 SQLITE_PATH = os.environ.get("JIQING_SQLITE_PATH", str(BASE_DIR / "db.sqlite3"))
 DATABASES = {
@@ -154,14 +152,17 @@ DATABASES = {
 
 Place the validation after the existing `ALLOWED_HOSTS` parsing, remove the later duplicate
 `AGENT_SERVICE_KEY` assignment, and keep `SECURE_PROXY_SSL_HEADER` plus secure cookies unchanged.
+Use `RuntimeError` because Django 4.2's management utility catches an
+`ImproperlyConfigured` raised while initially probing settings, then emits an unrelated
+`AppRegistryNotReady`; `RuntimeError` preserves the actionable environment-variable message.
 
-- [ ] **Step 4: Run focused and configuration tests and verify GREEN**
+- [x] **Step 4: Run focused and configuration tests and verify GREEN**
 
 Run: `cd demo1/backend && .venv/bin/python manage.py test accounts.test_deployment_settings -v 2 && .venv/bin/python manage.py check`
 
 Expected: 5 tests pass and Django reports no issues.
 
-- [ ] **Step 5: Commit settings contract**
+- [x] **Step 5: Commit settings contract**
 
 ```bash
 git add demo1/backend/accounts/test_deployment_settings.py demo1/backend/jiqing_backend/settings.py
