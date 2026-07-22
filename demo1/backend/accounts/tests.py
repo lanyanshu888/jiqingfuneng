@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.core.management import call_command
 from django.test import TestCase
 
-from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Opportunity, Policy
+from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Opportunity, Policy, YouthProfile
 
 
 class ApiAuthenticationTests(TestCase):
@@ -77,6 +77,25 @@ class DemoDataCommandTests(TestCase):
         self.assertGreater(Opportunity.objects.filter(status="published").count(), 0)
         self.assertGreater(Course.objects.filter(status="published").count(), 0)
         self.assertGreater(Activity.objects.filter(status="published").count(), 0)
+
+
+class RecommendationApiTests(TestCase):
+    def test_recommendations_prioritize_matching_region_and_intent(self):
+        user = User.objects.create_user(username="recommend", password="secret123")
+        token = AuthToken.create_for_user(user)
+        YouthProfile.objects.create(
+            user=user,
+            region="沧州黄骅市",
+            intents=["想找实习"],
+            tags=["实习优先"],
+        )
+        Opportunity.objects.create(title="外地岗位", status="published", region="石家庄市", tags=["岗位匹配"])
+        Opportunity.objects.create(title="本地实习", status="published", region="沧州黄骅市", tags=["实习优先"])
+
+        response = self.client.get("/api/recommendations/", HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["opportunity"]["title"], "本地实习")
 
 
 class EnrollmentApiTests(TestCase):

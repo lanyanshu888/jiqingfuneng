@@ -87,6 +87,32 @@ def published_resource_detail(model, resource_id, message):
     return JsonResponse(resource_payload(resource))
 
 
+def best_resource(resources, profile, serializer):
+    if not resources:
+        return None
+    region = profile.region if profile else ""
+    intents = set(profile.intents if profile else [])
+    profile_tags = set(profile.tags if profile else [])
+
+    def score(item):
+        value = 0
+        if region and getattr(item, "region", "") and region in getattr(item, "region", ""):
+            value += 3
+        item_tags = set(getattr(item, "tags", []) or [])
+        value += len(item_tags & profile_tags) * 2
+        if "想找实习" in intents and ("实习" in getattr(item, "title", "") or "实习" in item_tags):
+            value += 2
+        if "想找工作" in intents and ("岗位" in item_tags or "就业" in getattr(item, "title", "")):
+            value += 2
+        if "想提升技能" in intents and isinstance(item, Course):
+            value += 2
+        if "想参加社会实践" in intents and isinstance(item, Activity):
+            value += 2
+        return value
+
+    return serializer(max(resources, key=score))
+
+
 def auth_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -304,4 +330,22 @@ def growth_records(request):
         "activities": [resource_payload(item.activity) for item in activity_enrollments],
         "opportunities": [resource_payload(item.opportunity) for item in opportunity_enrollments],
         "courses": [resource_payload(item.course) for item in completed_courses],
+    })
+
+
+@require_http_methods(["GET"])
+@auth_required
+def recommendations(request):
+    profile = YouthProfile.objects.filter(user=request.user).first()
+    policies = list(Policy.objects.filter(status=Policy.STATUS_PUBLISHED).filter(
+        models.Q(effective_until__isnull=True) | models.Q(effective_until__gte=date.today())
+    ))
+    opportunities = list(published_items(Opportunity).filter(models.Q(deadline__isnull=True) | models.Q(deadline__gte=date.today())))
+    courses = list(published_items(Course))
+    activities = list(published_items(Activity))
+    return JsonResponse({
+        "policy": best_resource(policies, profile, policy_payload),
+        "opportunity": best_resource(opportunities, profile, resource_payload),
+        "course": best_resource(courses, profile, resource_payload),
+        "activity": best_resource(activities, profile, resource_payload),
     })
