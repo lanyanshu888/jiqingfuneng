@@ -179,6 +179,16 @@ def policy_list(request):
 
 
 @require_http_methods(["GET"])
+def policy_detail(request, policy_id):
+    policy = Policy.objects.filter(id=policy_id, status=Policy.STATUS_PUBLISHED).filter(
+        models.Q(effective_until__isnull=True) | models.Q(effective_until__gte=date.today())
+    ).first()
+    if not policy:
+        return JsonResponse({"message": "政策不存在"}, status=404)
+    return JsonResponse(policy_payload(policy))
+
+
+@require_http_methods(["GET"])
 def opportunity_list(request):
     return JsonResponse({"items": [resource_payload(item) for item in published_items(Opportunity).filter(models.Q(deadline__isnull=True) | models.Q(deadline__gte=date.today()))]})
 

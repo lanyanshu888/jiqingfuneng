@@ -33,6 +33,15 @@ class PolicyApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual([item["title"] for item in response.json()["items"]], ["可展示"])
 
+    def test_policy_detail_returns_a_published_policy(self):
+        policy = Policy.objects.create(title="可展示", status="published", source="人社部门")
+
+        response = self.client.get(f"/api/policies/{policy.id}/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "可展示")
+        self.assertEqual(response.json()["source"], "人社部门")
+
 
 class ResourceApiTests(TestCase):
     def test_resource_lists_only_return_published_items(self):
