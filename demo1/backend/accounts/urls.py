@@ -1,9 +1,18 @@
 from django.urls import path
 
-from . import views
+from . import agent_views, views
 
 
 urlpatterns = [
+    path("agent/binding-code/", agent_views.create_binding_code),
+    path("agent/bind/", agent_views.bind_account),
+    path("agent/skills/profile-context/", agent_views.profile_context),
+    path("agent/skills/policy-search/", agent_views.policy_search),
+    path("agent/skills/resource-match/", agent_views.resource_match),
+    path("agent/skills/career-plan/", agent_views.career_plan),
+    path("agent/skills/growth-action/", agent_views.growth_action),
+    path("agent/skills/daily-suggestion/", agent_views.daily_suggestion),
+    path("agent/me/dashboard/", agent_views.agent_dashboard),
     path("policies/", views.policy_list),
     path("policies/<int:policy_id>/", views.policy_detail),
     path("opportunities/", views.opportunity_list),

@@ -1,4 +1,6 @@
 import secrets
+import hashlib
+from datetime import date
 
 from django.conf import settings
 from django.db import models
@@ -173,3 +175,163 @@ class ReviewItem(models.Model):
     comment = models.TextField(blank=True)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="reviewed_items")
     reviewed_at = models.DateTimeField(null=True, blank=True)
+
+
+class AgentBindingCode(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="agent_binding_codes")
+    code_digest = models.CharField(max_length=64, unique=True, db_index=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "expires_at"], name="agent_code_user_exp_idx")]
+
+
+class AgentUserBinding(models.Model):
+    platform = models.CharField(max_length=30, default="xiaoyi")
+    external_user_id = models.CharField(max_length=200)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="agent_bindings")
+    access_token_digest = models.CharField(max_length=64, blank=True, db_index=True)
+    is_active = models.BooleanField(default=True)
+    bound_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["platform", "external_user_id"], name="unique_agent_external_id"),
+            models.UniqueConstraint(
+                fields=["platform", "user"],
+                condition=models.Q(is_active=True),
+                name="unique_active_agent_user",
+            ),
+        ]
+        indexes = [models.Index(fields=["platform", "external_user_id", "is_active"], name="agent_binding_lookup_idx")]
+
+    @staticmethod
+    def digest_access_token(token):
+        return hashlib.sha256(str(token).encode("utf-8")).hexdigest()
+
+    def issue_access_token(self):
+        token = secrets.token_urlsafe(32)
+        self.access_token_digest = self.digest_access_token(token)
+        self.save(update_fields=["access_token_digest"])
+        return token
+
+
+class AgentConversation(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="agent_conversations")
+    platform = models.CharField(max_length=30, default="xiaoyi")
+    external_conversation_id = models.CharField(max_length=200)
+    summary = models.TextField(blank=True)
+    last_interacted_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["platform", "external_conversation_id"],
+                name="unique_agent_conversation",
+            )
+        ]
+
+
+class AgentMessage(models.Model):
+    ROLE_USER = "user"
+    ROLE_ASSISTANT = "assistant"
+    ROLE_TOOL = "tool"
+    ROLE_CHOICES = [
+        (ROLE_USER, "用户"),
+        (ROLE_ASSISTANT, "Agent"),
+        (ROLE_TOOL, "工具"),
+    ]
+
+    conversation = models.ForeignKey(AgentConversation, on_delete=models.CASCADE, related_name="messages")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    content_summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class GrowthPlan(models.Model):
+    STATUS_ACTIVE = "active"
+    STATUS_COMPLETED = "completed"
+    STATUS_REPLACED = "replaced"
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, "进行中"),
+        (STATUS_COMPLETED, "已完成"),
+        (STATUS_REPLACED, "已更新"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="growth_plans")
+    goal = models.CharField(max_length=255)
+    starts_on = models.DateField(default=date.today)
+    ends_on = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+    rationale = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "status", "-created_at"], name="growth_plan_user_idx")]
+
+
+class GrowthTask(models.Model):
+    STAGE_SEVEN_DAYS = "seven_days"
+    STAGE_ONE_MONTH = "one_month"
+    STAGE_THREE_MONTHS = "three_months"
+    STAGE_CHOICES = [
+        (STAGE_SEVEN_DAYS, "7天"),
+        (STAGE_ONE_MONTH, "1个月"),
+        (STAGE_THREE_MONTHS, "3个月"),
+    ]
+    STATUS_PENDING = "pending"
+    STATUS_COMPLETED = "completed"
+    STATUS_SKIPPED = "skipped"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "待完成"),
+        (STATUS_COMPLETED, "已完成"),
+        (STATUS_SKIPPED, "已跳过"),
+    ]
+
+    plan = models.ForeignKey(GrowthPlan, on_delete=models.CASCADE, related_name="tasks")
+    stage = models.CharField(max_length=20, choices=STAGE_CHOICES)
+    title = models.CharField(max_length=200)
+    action_type = models.CharField(max_length=50, blank=True)
+    resource_type = models.CharField(max_length=30, blank=True)
+    resource_id = models.PositiveIntegerField(null=True, blank=True)
+    due_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    sequence = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sequence", "id"]
+        indexes = [models.Index(fields=["plan", "stage", "status"], name="growth_task_plan_idx")]
+
+
+class AgentToolLog(models.Model):
+    RESULT_SUCCESS = "success"
+    RESULT_ERROR = "error"
+    RESULT_CHOICES = [(RESULT_SUCCESS, "成功"), (RESULT_ERROR, "失败")]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="agent_tool_logs")
+    skill_name = models.CharField(max_length=80)
+    request_summary = models.JSONField(default=dict, blank=True)
+    result_status = models.CharField(max_length=20, choices=RESULT_CHOICES)
+    duration_ms = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["skill_name", "-created_at"], name="agent_tool_skill_idx")]
+
+
+class ProactiveSuggestion(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="proactive_suggestions")
+    suggestion_type = models.CharField(max_length=50)
+    content = models.TextField()
+    trigger_reason = models.CharField(max_length=255)
+    scheduled_for = models.DateTimeField()
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "scheduled_for", "completed_at"], name="agent_suggestion_user_idx")]

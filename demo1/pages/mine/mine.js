@@ -16,6 +16,7 @@ Page({
     user: null,
     loginText: "未登录",
     menus: [
+      { title: "连接小艺 Agent", url: "/pages/agent/agent" },
       { title: "我的画像", url: "/pages/profile/profile" },
       { title: "我的成长记录", url: "/pages/records/records" },
       { title: "我的课程", type: "tab", url: "/pages/growth/growth" },

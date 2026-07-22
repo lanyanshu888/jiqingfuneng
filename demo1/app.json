@@ -6,6 +6,7 @@
     "pages/opportunities/opportunities",
     "pages/growth/growth",
     "pages/mine/mine",
+    "pages/agent/agent",
     "pages/login/login",
     "pages/profile/profile",
     "pages/policy-detail/policy-detail",
@@ -17,7 +18,7 @@
     "pages/admin/admin"
   ],
   "window": {
-    "navigationBarTitleText": "冀青赋能",
+    "navigationBarTitleText": "冀青智引",
     "navigationBarBackgroundColor": "#2F80ED",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#F5F8FC",
