@@ -4,6 +4,8 @@ from . import agent_views, views
 
 
 urlpatterns = [
+    path("agent/binding-code/", agent_views.create_binding_code),
+    path("agent/bind/", agent_views.bind_account),
     path("agent/skills/profile-context/", agent_views.profile_context),
     path("policies/", views.policy_list),
     path("policies/<int:policy_id>/", views.policy_detail),
