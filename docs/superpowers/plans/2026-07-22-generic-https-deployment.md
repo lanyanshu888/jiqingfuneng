@@ -421,25 +421,25 @@ git commit -m "feat: package agent backend for https deployment"
 **Files:**
 - Modify: `docs/superpowers/plans/2026-07-22-generic-https-deployment.md` (check completed boxes only)
 
-- [ ] **Step 1: Run all backend checks**
+- [x] **Step 1: Run all backend checks**
 
 Run: `cd demo1/backend && .venv/bin/python manage.py makemigrations --check && .venv/bin/python manage.py check && .venv/bin/python manage.py test -v 2`
 
 Expected: no model changes, no Django issues, and all backend tests pass.
 
-- [ ] **Step 2: Run deployment and mini-program tests**
+- [x] **Step 2: Run deployment and mini-program tests**
 
 Run: `cd demo1/backend && .venv/bin/python -m unittest tests.test_entrypoint -v && cd .. && node --test tests/*.test.js`
 
 Expected: all deployment tests and all mini-program tests pass.
 
-- [ ] **Step 3: Inspect the final diff and worktree**
+- [x] **Step 3: Inspect the final diff and worktree**
 
 Run: `git diff --check && git status --short && git log --oneline -6`
 
 Expected: no whitespace errors; only the pre-existing untracked `.superpowers/` directory may remain.
 
-- [ ] **Step 4: Push the existing PR branch**
+- [x] **Step 4: Push the existing PR branch**
 
 Run: `git push origin feat/xiaoyi-agent-mvp`
 
