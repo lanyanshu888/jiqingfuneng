@@ -74,3 +74,9 @@ test("resource detail methods call their selected endpoints", async () => {
   await api.getActivity(5);
   assert.equal(lastRequest.url, "https://example.test/api/activities/5/");
 });
+
+test("recommendations call the authenticated recommendation endpoint", async () => {
+  await api.getRecommendations();
+
+  assert.equal(lastRequest.url, "https://example.test/api/recommendations/");
+});

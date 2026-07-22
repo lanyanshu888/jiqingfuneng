@@ -1,5 +1,6 @@
 const { stats, policies, opportunities, courses, activities } = require("../../utils/data");
 const { setTabBar } = require("../../utils/tabbar");
+const { getRecommendations } = require("../../utils/api");
 
 Page({
   data: {
@@ -28,6 +29,16 @@ Page({
     };
 
     this.setData({ profile, progress });
+    if (wx.getStorageSync("authToken")) {
+      getRecommendations().then((recommendations) => {
+        this.setData({
+          recommendPolicy: recommendations.policy || this.data.recommendPolicy,
+          recommendOpportunity: recommendations.opportunity || this.data.recommendOpportunity,
+          recommendCourse: recommendations.course || this.data.recommendCourse,
+          recommendActivity: recommendations.activity || this.data.recommendActivity
+        });
+      }).catch(() => {});
+    }
   },
 
   goProfile() {

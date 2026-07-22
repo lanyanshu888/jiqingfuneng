@@ -109,6 +109,10 @@ function getActivity(activityId) {
   return request({ url: `/activities/${activityId}/` });
 }
 
+function getRecommendations() {
+  return request({ url: "/recommendations/" });
+}
+
 module.exports = {
   request,
   login,
@@ -126,5 +130,6 @@ module.exports = {
   getCourses,
   getCourse,
   getActivities,
-  getActivity
+  getActivity,
+  getRecommendations
 };
