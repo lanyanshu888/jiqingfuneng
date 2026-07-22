@@ -43,3 +43,17 @@ test("opportunity enrollment calls the opportunity enrollment endpoint", async (
   assert.equal(lastRequest.url, "https://example.test/api/opportunities/9/enroll/");
   assert.equal(lastRequest.method, "POST");
 });
+
+test("resource list methods call their corresponding endpoints", async () => {
+  await api.getPolicies();
+  assert.equal(lastRequest.url, "https://example.test/api/policies/");
+
+  await api.getOpportunities();
+  assert.equal(lastRequest.url, "https://example.test/api/opportunities/");
+
+  await api.getCourses();
+  assert.equal(lastRequest.url, "https://example.test/api/courses/");
+
+  await api.getActivities();
+  assert.equal(lastRequest.url, "https://example.test/api/activities/");
+});

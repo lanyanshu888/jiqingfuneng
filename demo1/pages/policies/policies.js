@@ -1,5 +1,6 @@
 const { policies } = require("../../utils/data");
 const { setTabBar } = require("../../utils/tabbar");
+const { getPolicies } = require("../../utils/api");
 
 Page({
   data: {
@@ -10,6 +11,11 @@ Page({
 
   onShow() {
     setTabBar(this, 1);
+    getPolicies().then((result) => {
+      if (result.items && result.items.length) {
+        this.setData({ policies: result.items });
+      }
+    }).catch(() => {});
   },
 
   selectCategory(e) {

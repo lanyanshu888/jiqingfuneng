@@ -77,6 +77,22 @@ function getGrowthRecords() {
   return request({ url: "/me/growth/" });
 }
 
+function getPolicies() {
+  return request({ url: "/policies/" });
+}
+
+function getOpportunities() {
+  return request({ url: "/opportunities/" });
+}
+
+function getCourses() {
+  return request({ url: "/courses/" });
+}
+
+function getActivities() {
+  return request({ url: "/activities/" });
+}
+
 module.exports = {
   request,
   login,
@@ -86,5 +102,9 @@ module.exports = {
   enrollActivity,
   enrollOpportunity,
   completeCourse,
-  getGrowthRecords
+  getGrowthRecords,
+  getPolicies,
+  getOpportunities,
+  getCourses,
+  getActivities
 };
