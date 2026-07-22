@@ -81,6 +81,10 @@ function getPolicies() {
   return request({ url: "/policies/" });
 }
 
+function getPolicy(policyId) {
+  return request({ url: `/policies/${policyId}/` });
+}
+
 function getOpportunities() {
   return request({ url: "/opportunities/" });
 }
@@ -104,6 +108,7 @@ module.exports = {
   completeCourse,
   getGrowthRecords,
   getPolicies,
+  getPolicy,
   getOpportunities,
   getCourses,
   getActivities

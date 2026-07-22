@@ -57,3 +57,9 @@ test("resource list methods call their corresponding endpoints", async () => {
   await api.getActivities();
   assert.equal(lastRequest.url, "https://example.test/api/activities/");
 });
+
+test("policy detail calls the selected policy endpoint", async () => {
+  await api.getPolicy(4);
+
+  assert.equal(lastRequest.url, "https://example.test/api/policies/4/");
+});
