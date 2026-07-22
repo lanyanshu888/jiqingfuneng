@@ -1,13 +1,16 @@
 import json
+from datetime import date
 from functools import wraps
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.db import models
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import AuthToken, YouthProfile
+from .models import Policy
 
 
 def json_body(request):
@@ -37,6 +40,25 @@ def profile_payload(profile):
         "abilities": profile.abilities,
         "tags": profile.tags,
         "summary": profile.summary,
+    }
+
+
+def policy_payload(policy):
+    return {
+        "id": policy.id,
+        "title": policy.title,
+        "region": policy.region,
+        "category": policy.category,
+        "target": policy.target,
+        "support": policy.support,
+        "conditions": policy.conditions,
+        "materials": policy.materials,
+        "process": policy.process,
+        "location": policy.location,
+        "phone": policy.phone,
+        "source": policy.source,
+        "publishedAt": policy.published_at.isoformat() if policy.published_at else None,
+        "effectiveUntil": policy.effective_until.isoformat() if policy.effective_until else None,
     }
 
 
@@ -128,3 +150,11 @@ def profile_me(request):
     profile.save()
 
     return JsonResponse({"profile": profile_payload(profile)})
+
+
+@require_http_methods(["GET"])
+def policy_list(request):
+    policies = Policy.objects.filter(status=Policy.STATUS_PUBLISHED).filter(
+        models.Q(effective_until__isnull=True) | models.Q(effective_until__gte=date.today())
+    ).order_by("-created_at")
+    return JsonResponse({"items": [policy_payload(policy) for policy in policies]})

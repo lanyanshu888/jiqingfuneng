@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 
-from .models import Activity, Enrollment
+from .models import Activity, Enrollment, Policy
 
 
 class ApiAuthenticationTests(TestCase):
@@ -20,3 +20,15 @@ class EnrollmentModelTests(TestCase):
 
         with self.assertRaises(IntegrityError):
             Enrollment.objects.create(user=user, activity=activity)
+
+
+class PolicyApiTests(TestCase):
+    def test_policy_list_only_returns_published_and_current_policies(self):
+        Policy.objects.create(title="可展示", status="published", effective_until="2026-12-31")
+        Policy.objects.create(title="草稿", status="draft", effective_until="2026-12-31")
+        Policy.objects.create(title="过期", status="published", effective_until="2020-01-01")
+
+        response = self.client.get("/api/policies/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([item["title"] for item in response.json()["items"]], ["可展示"])
