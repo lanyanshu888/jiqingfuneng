@@ -4,3 +4,5 @@ backend/**/*.pyc
 .venv/
 .venv1/
 node_modules/
+.DS_Store
+.superpowers/

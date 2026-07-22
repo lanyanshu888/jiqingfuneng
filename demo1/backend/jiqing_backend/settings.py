@@ -1,11 +1,16 @@
+import os
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-jiqing-empower-secret-key"
-DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+SECRET_KEY = os.environ.get("JIQING_SECRET_KEY", "dev-only-change-before-deploy")
+DEBUG = os.environ.get("JIQING_DEBUG", "true").lower() == "true"
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("JIQING_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if host.strip()
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -63,3 +68,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG

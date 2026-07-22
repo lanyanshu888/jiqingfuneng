@@ -1,5 +1,6 @@
 const { courses, activities, mentors } = require("../../utils/data");
 const { setTabBar } = require("../../utils/tabbar");
+const { getActivities, getCourses } = require("../../utils/api");
 
 Page({
   data: {
@@ -12,6 +13,12 @@ Page({
   onShow() {
     setTabBar(this, 3);
     this.setData({ profile: wx.getStorageSync("growthProfile") || null });
+    Promise.all([getCourses(), getActivities()]).then(([courseResult, activityResult]) => {
+      this.setData({
+        courses: courseResult.items && courseResult.items.length ? courseResult.items : this.data.courses,
+        activities: activityResult.items && activityResult.items.length ? activityResult.items : this.data.activities
+      });
+    }).catch(() => {});
   },
 
   goCourse(e) {

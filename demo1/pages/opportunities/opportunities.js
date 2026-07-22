@@ -1,5 +1,6 @@
 const { opportunities } = require("../../utils/data");
 const { setTabBar } = require("../../utils/tabbar");
+const { getOpportunities } = require("../../utils/api");
 
 Page({
   data: {
@@ -10,6 +11,11 @@ Page({
 
   onShow() {
     setTabBar(this, 2);
+    getOpportunities().then((result) => {
+      if (result.items && result.items.length) {
+        this.setData({ opportunities: result.items });
+      }
+    }).catch(() => {});
   },
 
   selectTab(e) {

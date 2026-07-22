@@ -52,10 +52,107 @@ function saveRemoteProfile(profile) {
   });
 }
 
+function enrollActivity(activityId) {
+  return request({
+    url: `/activities/${activityId}/enroll/`,
+    method: "POST"
+  });
+}
+
+function enrollOpportunity(opportunityId) {
+  return request({
+    url: `/opportunities/${opportunityId}/enroll/`,
+    method: "POST"
+  });
+}
+
+function completeCourse(courseId) {
+  return request({
+    url: `/courses/${courseId}/complete/`,
+    method: "POST"
+  });
+}
+
+function getGrowthRecords() {
+  return request({ url: "/me/growth/" });
+}
+
+function getPolicies() {
+  return request({ url: "/policies/" });
+}
+
+function getPolicy(policyId) {
+  return request({ url: `/policies/${policyId}/` });
+}
+
+function getOpportunities() {
+  return request({ url: "/opportunities/" });
+}
+
+function getOpportunity(opportunityId) {
+  return request({ url: `/opportunities/${opportunityId}/` });
+}
+
+function getCourses() {
+  return request({ url: "/courses/" });
+}
+
+function getCourse(courseId) {
+  return request({ url: `/courses/${courseId}/` });
+}
+
+function getActivities() {
+  return request({ url: "/activities/" });
+}
+
+function getActivity(activityId) {
+  return request({ url: `/activities/${activityId}/` });
+}
+
+function getRecommendations() {
+  return request({ url: "/recommendations/" });
+}
+
+function getMentors() {
+  return request({ url: "/mentors/" });
+}
+
+function consultMentor(mentorId, consultation) {
+  return request({
+    url: `/mentors/${mentorId}/consult/`,
+    method: "POST",
+    data: consultation
+  });
+}
+
+function toggleFavorite(resourceType, resourceId) {
+  return request({
+    url: "/favorites/toggle/",
+    method: "POST",
+    data: { resourceType, resourceId }
+  });
+}
+
 module.exports = {
   request,
   login,
   register,
   getMe,
-  saveRemoteProfile
+  saveRemoteProfile,
+  enrollActivity,
+  enrollOpportunity,
+  completeCourse,
+  getGrowthRecords,
+  getPolicies,
+  getPolicy,
+  getOpportunities,
+  getOpportunity,
+  getCourses,
+  getCourse,
+  getActivities,
+  getActivity,
+  getRecommendations,
+  getMentors,
+  consultMentor,
+  toggleFavorite
 };
