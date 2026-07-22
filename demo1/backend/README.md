@@ -48,9 +48,13 @@ Authorization: Token <token>
 export JIQING_SECRET_KEY="替换为足够长的随机字符串"
 export JIQING_DEBUG="false"
 export JIQING_ALLOWED_HOSTS="api.example.com"
+export JIQING_AGENT_SERVICE_KEY="替换为不少于32个随机字符的服务密钥"
+export JIQING_AGENT_CONFIRMATION_MAX_AGE_SECONDS="300"
 ```
 
 生产环境必须使用 HTTPS。部署后将小程序 `app.js` 中的 `apiBaseUrl` 改为服务器的 HTTPS 地址，并在微信公众平台配置合法 request 域名。
+
+`JIQING_AGENT_SERVICE_KEY` 只允许配置在 Django 服务和小艺 Skills 的服务端认证中，不得写入小程序代码或提交真实生产密钥。
 
 ## 验证
 

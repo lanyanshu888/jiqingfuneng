@@ -1,9 +1,10 @@
 from django.urls import path
 
-from . import views
+from . import agent_views, views
 
 
 urlpatterns = [
+    path("agent/skills/profile-context/", agent_views.profile_context),
     path("policies/", views.policy_list),
     path("policies/<int:policy_id>/", views.policy_detail),
     path("opportunities/", views.opportunity_list),
