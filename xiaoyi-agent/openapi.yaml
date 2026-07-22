@@ -1,0 +1,242 @@
+openapi: 3.0.3
+info:
+  title: 冀青智引 Agent Skills API
+  version: 1.0.0
+  description: 面向小艺 Agent 的青年画像、职业规划、政策检索、资源匹配、成长行动与今日建议接口。
+servers:
+  - url: https://api.example.com/api
+    description: 部署后替换为冀青智引 Django 服务的 HTTPS 地址
+security:
+  - AgentServiceKey: []
+paths:
+  /agent/bind/:
+    post:
+      operationId: bindAccount
+      summary: 使用小程序一次性绑定码绑定小艺账号
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId, code]
+              properties:
+                externalUserId:
+                  type: string
+                  description: 小艺平台提供的稳定用户标识
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+        '400':
+          $ref: '#/components/responses/AgentError'
+  /agent/skills/profile-context/:
+    post:
+      operationId: profileContext
+      summary: 读取青年画像，或在用户确认后更新画像
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId]
+              properties:
+                externalUserId:
+                  type: string
+                operation:
+                  type: string
+                  enum: [read, update]
+                  default: read
+                changes:
+                  type: object
+                  additionalProperties: true
+                confirmed:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+        '400':
+          $ref: '#/components/responses/AgentError'
+  /agent/skills/career-plan/:
+    post:
+      operationId: careerPlan
+      summary: 生成 7 天、1 个月和 3 个月成长计划
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId, goal]
+              properties:
+                externalUserId:
+                  type: string
+                goal:
+                  type: string
+                  maxLength: 255
+      responses:
+        '201':
+          $ref: '#/components/responses/AgentSuccess'
+        '400':
+          $ref: '#/components/responses/AgentError'
+  /agent/skills/policy-search/:
+    post:
+      operationId: policySearch
+      summary: 检索已发布且未过期的政策及来源
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId]
+              properties:
+                externalUserId:
+                  type: string
+                keyword:
+                  type: string
+                  maxLength: 50
+                region:
+                  type: string
+                  maxLength: 100
+                category:
+                  type: string
+                  maxLength: 50
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 5
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+  /agent/skills/resource-match/:
+    post:
+      operationId: resourceMatch
+      summary: 按画像匹配岗位、课程、活动和导师
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId]
+              properties:
+                externalUserId:
+                  type: string
+                resourceTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum: [opportunity, course, activity, mentor]
+                goal:
+                  type: string
+                  maxLength: 100
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 3
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+  /agent/skills/growth-action/:
+    post:
+      operationId: growthAction
+      summary: 预览并在用户明确确认后执行成长行动
+      description: 首次调用不带 confirmed，返回确认令牌；用户明确同意后原样携带操作参数、confirmed=true 和 confirmationToken 再调用。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId, action, resourceId]
+              properties:
+                externalUserId:
+                  type: string
+                action:
+                  type: string
+                  enum: [enroll_activity, apply_opportunity, favorite_resource, complete_course, complete_task]
+                resourceType:
+                  type: string
+                  enum: [policy, opportunity, course, activity, task]
+                resourceId:
+                  type: integer
+                  minimum: 1
+                confirmed:
+                  type: boolean
+                  default: false
+                confirmationToken:
+                  type: string
+                  description: 首次预览调用返回的短时签名令牌
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+        '201':
+          $ref: '#/components/responses/AgentSuccess'
+        '400':
+          $ref: '#/components/responses/AgentError'
+  /agent/skills/daily-suggestion/:
+    post:
+      operationId: dailySuggestion
+      summary: 获取基于计划、画像和匹配资源的今日建议
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalUserId]
+              properties:
+                externalUserId:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentSuccess'
+components:
+  securitySchemes:
+    AgentServiceKey:
+      type: apiKey
+      in: header
+      name: X-Agent-Service-Key
+      description: 在小艺平台服务端安全配置，不得暴露给终端用户
+  responses:
+    AgentSuccess:
+      description: Skill 调用成功或需要用户确认
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AgentResponse'
+    AgentError:
+      description: 参数、绑定、确认或服务错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AgentResponse'
+  schemas:
+    AgentResponse:
+      type: object
+      required: [ok, message, data, sources, requiresConfirmation, errorCode]
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+        sources:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        requiresConfirmation:
+          type: boolean
+        errorCode:
+          type: string
+          nullable: true
