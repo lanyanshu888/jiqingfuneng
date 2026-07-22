@@ -63,3 +63,14 @@ test("policy detail calls the selected policy endpoint", async () => {
 
   assert.equal(lastRequest.url, "https://example.test/api/policies/4/");
 });
+
+test("resource detail methods call their selected endpoints", async () => {
+  await api.getOpportunity(2);
+  assert.equal(lastRequest.url, "https://example.test/api/opportunities/2/");
+
+  await api.getCourse(3);
+  assert.equal(lastRequest.url, "https://example.test/api/courses/3/");
+
+  await api.getActivity(5);
+  assert.equal(lastRequest.url, "https://example.test/api/activities/5/");
+});

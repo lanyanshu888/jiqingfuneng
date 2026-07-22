@@ -1,5 +1,5 @@
 const { opportunities } = require("../../utils/data");
-const { enrollOpportunity } = require("../../utils/api");
+const { enrollOpportunity, getOpportunity } = require("../../utils/api");
 
 Page({
   data: {
@@ -11,6 +11,11 @@ Page({
     const opportunity = opportunities.find((item) => item.id === options.id) || opportunities[0];
     const joinedIds = wx.getStorageSync("joinedOpportunities") || [];
     this.setData({ opportunity, joined: joinedIds.includes(opportunity.id) });
+    if (/^\d+$/.test(String(options.id))) {
+      getOpportunity(options.id).then((remoteOpportunity) => {
+        this.setData({ opportunity: remoteOpportunity });
+      }).catch(() => {});
+    }
   },
 
   join() {

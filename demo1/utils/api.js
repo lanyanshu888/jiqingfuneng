@@ -89,12 +89,24 @@ function getOpportunities() {
   return request({ url: "/opportunities/" });
 }
 
+function getOpportunity(opportunityId) {
+  return request({ url: `/opportunities/${opportunityId}/` });
+}
+
 function getCourses() {
   return request({ url: "/courses/" });
 }
 
+function getCourse(courseId) {
+  return request({ url: `/courses/${courseId}/` });
+}
+
 function getActivities() {
   return request({ url: "/activities/" });
+}
+
+function getActivity(activityId) {
+  return request({ url: `/activities/${activityId}/` });
 }
 
 module.exports = {
@@ -110,6 +122,9 @@ module.exports = {
   getPolicies,
   getPolicy,
   getOpportunities,
+  getOpportunity,
   getCourses,
-  getActivities
+  getCourse,
+  getActivities,
+  getActivity
 };

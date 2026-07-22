@@ -1,5 +1,5 @@
 const { activities } = require("../../utils/data");
-const { enrollActivity } = require("../../utils/api");
+const { enrollActivity, getActivity } = require("../../utils/api");
 
 Page({
   data: {
@@ -11,6 +11,11 @@ Page({
     const activity = activities.find((item) => item.id === options.id) || activities[0];
     const joinedIds = wx.getStorageSync("joinedActivities") || [];
     this.setData({ activity, joined: joinedIds.includes(activity.id) });
+    if (/^\d+$/.test(String(options.id))) {
+      getActivity(options.id).then((remoteActivity) => {
+        this.setData({ activity: remoteActivity });
+      }).catch(() => {});
+    }
   },
 
   joinActivity() {

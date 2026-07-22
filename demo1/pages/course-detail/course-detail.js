@@ -1,5 +1,5 @@
 const { courses } = require("../../utils/data");
-const { completeCourse } = require("../../utils/api");
+const { completeCourse, getCourse } = require("../../utils/api");
 
 Page({
   data: {
@@ -11,6 +11,11 @@ Page({
     const course = courses.find((item) => item.id === options.id) || courses[0];
     const finishedIds = wx.getStorageSync("finishedCourses") || [];
     this.setData({ course, finished: finishedIds.includes(course.id) });
+    if (/^\d+$/.test(String(options.id))) {
+      getCourse(options.id).then((remoteCourse) => {
+        this.setData({ course: remoteCourse });
+      }).catch(() => {});
+    }
   },
 
   finishCourse() {
