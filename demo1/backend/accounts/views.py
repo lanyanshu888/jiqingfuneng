@@ -80,6 +80,13 @@ def published_items(model):
     return model.objects.filter(status=model.STATUS_PUBLISHED).order_by("-created_at")
 
 
+def published_resource_detail(model, resource_id, message):
+    resource = model.objects.filter(id=resource_id, status=model.STATUS_PUBLISHED).first()
+    if not resource:
+        return JsonResponse({"message": message}, status=404)
+    return JsonResponse(resource_payload(resource))
+
+
 def auth_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -194,13 +201,28 @@ def opportunity_list(request):
 
 
 @require_http_methods(["GET"])
+def opportunity_detail(request, opportunity_id):
+    return published_resource_detail(Opportunity, opportunity_id, "岗位不存在")
+
+
+@require_http_methods(["GET"])
 def course_list(request):
     return JsonResponse({"items": [resource_payload(item) for item in published_items(Course)]})
 
 
 @require_http_methods(["GET"])
+def course_detail(request, course_id):
+    return published_resource_detail(Course, course_id, "课程不存在")
+
+
+@require_http_methods(["GET"])
 def activity_list(request):
     return JsonResponse({"items": [resource_payload(item) for item in published_items(Activity)]})
+
+
+@require_http_methods(["GET"])
+def activity_detail(request, activity_id):
+    return published_resource_detail(Activity, activity_id, "活动不存在")
 
 
 @require_http_methods(["GET"])

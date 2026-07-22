@@ -58,6 +58,15 @@ class ResourceApiTests(TestCase):
         self.assertEqual([item["title"] for item in course_response.json()["items"]], ["可展示课程"])
         self.assertEqual([item["title"] for item in activity_response.json()["items"]], ["可展示活动"])
 
+    def test_resource_detail_endpoints_return_published_resources(self):
+        opportunity = Opportunity.objects.create(title="实习", status="published")
+        course = Course.objects.create(title="课程", status="published")
+        activity = Activity.objects.create(title="活动", status="published")
+
+        self.assertEqual(self.client.get(f"/api/opportunities/{opportunity.id}/").json()["title"], "实习")
+        self.assertEqual(self.client.get(f"/api/courses/{course.id}/").json()["title"], "课程")
+        self.assertEqual(self.client.get(f"/api/activities/{activity.id}/").json()["title"], "活动")
+
 
 class EnrollmentApiTests(TestCase):
     def setUp(self):
