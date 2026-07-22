@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 
-from .models import Activity, Enrollment, Policy
+from .models import Activity, Course, Enrollment, Opportunity, Policy
 
 
 class ApiAuthenticationTests(TestCase):
@@ -32,3 +32,19 @@ class PolicyApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual([item["title"] for item in response.json()["items"]], ["可展示"])
+
+
+class ResourceApiTests(TestCase):
+    def test_resource_lists_only_return_published_items(self):
+        Opportunity.objects.create(title="可展示岗位", status="published")
+        Opportunity.objects.create(title="草稿岗位", status="draft")
+        Course.objects.create(title="可展示课程", status="published")
+        Activity.objects.create(title="可展示活动", status="published")
+
+        opportunity_response = self.client.get("/api/opportunities/")
+        course_response = self.client.get("/api/courses/")
+        activity_response = self.client.get("/api/activities/")
+
+        self.assertEqual([item["title"] for item in opportunity_response.json()["items"]], ["可展示岗位"])
+        self.assertEqual([item["title"] for item in course_response.json()["items"]], ["可展示课程"])
+        self.assertEqual([item["title"] for item in activity_response.json()["items"]], ["可展示活动"])

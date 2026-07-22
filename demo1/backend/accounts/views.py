@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import AuthToken, YouthProfile
-from .models import Policy
+from .models import Activity, Course, Mentor, Opportunity, Policy
 
 
 def json_body(request):
@@ -60,6 +60,22 @@ def policy_payload(policy):
         "publishedAt": policy.published_at.isoformat() if policy.published_at else None,
         "effectiveUntil": policy.effective_until.isoformat() if policy.effective_until else None,
     }
+
+
+def resource_payload(resource):
+    payload = {"id": resource.id, "title": resource.title}
+    for field in ("region", "category", "type", "unit", "pay", "education", "major", "tags", "detail", "target", "duration", "teacher", "goal", "materials", "certificate", "place", "host", "capacity", "agenda", "role", "good_at", "available"):
+        if hasattr(resource, field):
+            payload[field] = getattr(resource, field)
+    if hasattr(resource, "deadline"):
+        payload["deadline"] = resource.deadline.isoformat() if resource.deadline else None
+    if hasattr(resource, "starts_at"):
+        payload["startsAt"] = resource.starts_at.isoformat() if resource.starts_at else None
+    return payload
+
+
+def published_items(model):
+    return model.objects.filter(status=model.STATUS_PUBLISHED).order_by("-created_at")
 
 
 def auth_required(view_func):
@@ -158,3 +174,23 @@ def policy_list(request):
         models.Q(effective_until__isnull=True) | models.Q(effective_until__gte=date.today())
     ).order_by("-created_at")
     return JsonResponse({"items": [policy_payload(policy) for policy in policies]})
+
+
+@require_http_methods(["GET"])
+def opportunity_list(request):
+    return JsonResponse({"items": [resource_payload(item) for item in published_items(Opportunity).filter(models.Q(deadline__isnull=True) | models.Q(deadline__gte=date.today()))]})
+
+
+@require_http_methods(["GET"])
+def course_list(request):
+    return JsonResponse({"items": [resource_payload(item) for item in published_items(Course)]})
+
+
+@require_http_methods(["GET"])
+def activity_list(request):
+    return JsonResponse({"items": [resource_payload(item) for item in published_items(Activity)]})
+
+
+@require_http_methods(["GET"])
+def mentor_list(request):
+    return JsonResponse({"items": [resource_payload(item) for item in published_items(Mentor)]})
