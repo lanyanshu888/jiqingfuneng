@@ -39,5 +39,6 @@
     <text class="muted">政策来源：{{policy.source}}</text>
   </view>
 
+  <button class="secondary-btn" bindtap="toggleFavorite">{{favorited ? "已收藏" : "收藏政策"}}</button>
   <button class="primary-btn fixed-action" bindtap="callService">咨询申请流程</button>
 </view>

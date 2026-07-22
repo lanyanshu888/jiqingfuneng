@@ -28,5 +28,6 @@
     <text class="muted">联系方式：{{opportunity.contact}}</text>
   </view>
 
+  <button class="secondary-btn" bindtap="toggleFavorite">{{favorited ? "已收藏" : "收藏岗位"}}</button>
   <button class="primary-btn fixed-action" bindtap="join">{{joined ? "已报名" : "立即报名"}}</button>
 </view>

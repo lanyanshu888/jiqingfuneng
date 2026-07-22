@@ -125,6 +125,14 @@ function consultMentor(mentorId, consultation) {
   });
 }
 
+function toggleFavorite(resourceType, resourceId) {
+  return request({
+    url: "/favorites/toggle/",
+    method: "POST",
+    data: { resourceType, resourceId }
+  });
+}
+
 module.exports = {
   request,
   login,
@@ -145,5 +153,6 @@ module.exports = {
   getActivity,
   getRecommendations,
   getMentors,
-  consultMentor
+  consultMentor,
+  toggleFavorite
 };

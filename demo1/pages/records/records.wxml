@@ -43,5 +43,14 @@
         <text class="muted">{{item.question}}</text>
       </view>
     </view>
+
+    <view class="section">
+      <text class="section-title">我的收藏（{{favorites.length}}）</text>
+      <view wx:if="{{!favorites.length}}" class="card empty-card">暂无收藏资源</view>
+      <view class="card record-card" wx:for="{{favorites}}" wx:key="id">
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.resourceType}}｜{{item.region || item.category}}</text>
+      </view>
+    </view>
   </block>
 </view>

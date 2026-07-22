@@ -7,7 +7,8 @@ Page({
     activities: [],
     opportunities: [],
     courses: [],
-    consultations: []
+    consultations: [],
+    favorites: []
   },
 
   onShow() {
@@ -22,7 +23,8 @@ Page({
         activities: records.activities || [],
         opportunities: records.opportunities || [],
         courses: records.courses || [],
-        consultations: records.consultations || []
+        consultations: records.consultations || [],
+        favorites: records.favorites || []
       });
     }).catch((error) => {
       this.setData({ loading: false, error: error.message || "暂时无法获取成长记录" });

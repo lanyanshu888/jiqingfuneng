@@ -16,7 +16,7 @@ test("records page is registered and linked from mine page", () => {
 test("records page renders all growth record categories", () => {
   const template = fs.readFileSync(path.join(projectRoot, "pages/records/records.wxml"), "utf8");
 
-  for (const title of ["活动报名", "岗位申请", "已完成课程", "导师咨询"]) {
+  for (const title of ["活动报名", "岗位申请", "已完成课程", "导师咨询", "我的收藏"]) {
     assert.match(template, new RegExp(title));
   }
 });

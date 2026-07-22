@@ -90,3 +90,11 @@ test("mentor methods load mentors and submit a consultation", async () => {
   assert.equal(lastRequest.method, "POST");
   assert.deepEqual(lastRequest.data, { question: "如何准备面试？" });
 });
+
+test("favorite toggle posts the selected resource", async () => {
+  await api.toggleFavorite("policy", 7);
+
+  assert.equal(lastRequest.url, "https://example.test/api/favorites/toggle/");
+  assert.equal(lastRequest.method, "POST");
+  assert.deepEqual(lastRequest.data, { resourceType: "policy", resourceId: 7 });
+});
