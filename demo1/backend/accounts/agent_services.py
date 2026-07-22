@@ -1,9 +1,9 @@
-from datetime import date
+from datetime import date, timedelta
 
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
-from .models import Activity, Course, Mentor, Opportunity, Policy
+from .models import Activity, Course, GrowthPlan, GrowthTask, Mentor, Opportunity, Policy
 from .models import GrowthEvent, YouthProfile
 
 
@@ -242,3 +242,78 @@ def match_resources(user, resource_types=None, goal="", limit=3):
                 "deadline": resource.deadline.isoformat() if getattr(resource, "deadline", None) else None,
             })
     return {"items": items}
+
+
+def create_career_plan(user, goal):
+    profile = YouthProfile.objects.get(user=user)
+    recommendations = match_resources(user, limit=1, goal=goal)["items"]
+    recommended = {item["resourceType"]: item for item in recommendations}
+    now = timezone.now()
+    templates = [
+        ("seven_days", "补全并确认个人成长画像", "update_profile", None, 2),
+        ("seven_days", "查看一项与你匹配的有效政策", "view_policy", None, 4),
+        ("seven_days", "收藏一个目标岗位或成长资源", "favorite_resource", "opportunity", 7),
+        ("one_month", "完成一门目标技能课程", "complete_course", "course", 21),
+        ("one_month", "参加一次县域青年实践活动", "enroll_activity", "activity", 30),
+        ("one_month", "投递一个匹配岗位", "apply_opportunity", "opportunity", 30),
+        ("three_months", "完成阶段成长复盘", "review_plan", None, 60),
+        ("three_months", "更新画像并记录新增能力", "update_profile", None, 75),
+        ("three_months", "执行下一轮政策与资源匹配", "resource_match", None, 90),
+    ]
+    with transaction.atomic():
+        GrowthPlan.objects.filter(user=user, status=GrowthPlan.STATUS_ACTIVE).update(
+            status=GrowthPlan.STATUS_REPLACED
+        )
+        plan = GrowthPlan.objects.create(
+            user=user,
+            goal=goal,
+            ends_on=date.today() + timedelta(days=90),
+            rationale={
+                "region": profile.region,
+                "education": profile.education,
+                "major": profile.major,
+                "intents": profile.intents,
+                "abilities": profile.abilities,
+            },
+        )
+        tasks = []
+        for sequence, (stage, title, action_type, resource_type, due_days) in enumerate(templates, 1):
+            resource = recommended.get(resource_type) if resource_type else None
+            if resource:
+                title = f"{title}：{resource['title']}"
+            tasks.append(GrowthTask.objects.create(
+                plan=plan,
+                stage=stage,
+                title=title,
+                action_type=action_type,
+                resource_type=resource_type or "",
+                resource_id=resource["resourceId"] if resource else None,
+                due_at=now + timedelta(days=due_days),
+                sequence=sequence,
+            ))
+        GrowthEvent.objects.create(
+            user=user,
+            event_type="growth_plan_created",
+            payload={"planId": plan.id, "goal": goal},
+        )
+
+    return {
+        "planId": plan.id,
+        "goal": plan.goal,
+        "startsOn": plan.starts_on.isoformat(),
+        "endsOn": plan.ends_on.isoformat(),
+        "rationale": plan.rationale,
+        "tasks": [
+            {
+                "taskId": task.id,
+                "stage": task.stage,
+                "title": task.title,
+                "actionType": task.action_type,
+                "resourceType": task.resource_type,
+                "resourceId": task.resource_id,
+                "dueAt": task.due_at.isoformat() if task.due_at else None,
+                "status": task.status,
+            }
+            for task in tasks
+        ],
+    }

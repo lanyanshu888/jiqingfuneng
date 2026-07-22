@@ -9,6 +9,7 @@ urlpatterns = [
     path("agent/skills/profile-context/", agent_views.profile_context),
     path("agent/skills/policy-search/", agent_views.policy_search),
     path("agent/skills/resource-match/", agent_views.resource_match),
+    path("agent/skills/career-plan/", agent_views.career_plan),
     path("policies/", views.policy_list),
     path("policies/<int:policy_id>/", views.policy_detail),
     path("opportunities/", views.opportunity_list),

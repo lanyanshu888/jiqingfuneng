@@ -11,6 +11,8 @@ from django.views.decorators.http import require_http_methods
 from .agent_auth import agent_service_required, agent_skill
 from .agent_protocol import agent_response
 from .agent_services import (
+    REQUIRED_PROFILE_FIELDS,
+    create_career_plan,
     match_resources,
     profile_context_data,
     search_policies,
@@ -187,4 +189,32 @@ def resource_match(request):
         ok=True,
         message=f"为你匹配到 {len(result['items'])} 项成长资源",
         data=result,
+    )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@agent_skill("career_plan")
+def career_plan(request):
+    data = request.agent_data
+    goal = str(data.get("goal") or "").strip()[:255]
+    context = profile_context_data(request.agent_user)
+    missing_fields = list(context["missingFields"])
+    if not goal:
+        missing_fields.insert(0, "goal")
+    missing_fields = [field for field in ["goal", *REQUIRED_PROFILE_FIELDS] if field in missing_fields]
+    if missing_fields:
+        return agent_response(
+            ok=False,
+            message="请先补充制定规划所需的信息",
+            data={"missingFields": missing_fields},
+            error_code="PROFILE_INCOMPLETE",
+            status=400,
+        )
+    result = create_career_plan(request.agent_user, goal)
+    return agent_response(
+        ok=True,
+        message="已生成 7 天、1 个月和 3 个月成长计划",
+        data=result,
+        status=201,
     )
