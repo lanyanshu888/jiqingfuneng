@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 
-from .models import Activity, AuthToken, Course, Enrollment, GrowthEvent, Opportunity, Policy
+from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Opportunity, Policy
 
 
 class ApiAuthenticationTests(TestCase):
@@ -66,3 +66,13 @@ class EnrollmentApiTests(TestCase):
         self.assertEqual(second.status_code, 409)
         self.assertTrue(Enrollment.objects.filter(user=self.user, activity=self.activity).exists())
         self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="activity_enrolled").exists())
+
+    def test_course_completion_is_saved(self):
+        course = Course.objects.create(title="简历课", status="published")
+        headers = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
+
+        response = self.client.post(f"/api/courses/{course.id}/complete/", **headers)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(CourseProgress.objects.filter(user=self.user, course=course, completed=True).exists())
+        self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="course_completed").exists())

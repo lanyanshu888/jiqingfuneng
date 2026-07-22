@@ -10,7 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import AuthToken, YouthProfile
-from .models import Activity, Course, Enrollment, GrowthEvent, Mentor, Opportunity, Policy
+from django.utils import timezone
+
+from .models import Activity, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, Opportunity, Policy
 
 
 def json_body(request):
@@ -213,3 +215,29 @@ def enroll_activity(request, activity_id):
         resource_id=activity.id,
     )
     return JsonResponse({"message": "报名成功", "activityId": activity.id}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@auth_required
+def complete_course(request, course_id):
+    course = Course.objects.filter(id=course_id, status=Course.STATUS_PUBLISHED).first()
+    if not course:
+        return JsonResponse({"message": "课程不存在"}, status=404)
+    progress, created = CourseProgress.objects.get_or_create(
+        user=request.user,
+        course=course,
+        defaults={"completed": True, "completed_at": timezone.now()},
+    )
+    if not created and progress.completed:
+        return JsonResponse({"message": "你已完成该课程"}, status=409)
+    progress.completed = True
+    progress.completed_at = timezone.now()
+    progress.save(update_fields=["completed", "completed_at"])
+    GrowthEvent.objects.create(
+        user=request.user,
+        event_type="course_completed",
+        resource_type="course",
+        resource_id=course.id,
+    )
+    return JsonResponse({"message": "课程已完成", "courseId": course.id}, status=201)
