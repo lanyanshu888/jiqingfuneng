@@ -241,3 +241,16 @@ def complete_course(request, course_id):
         resource_id=course.id,
     )
     return JsonResponse({"message": "课程已完成", "courseId": course.id}, status=201)
+
+
+@require_http_methods(["GET"])
+@auth_required
+def growth_records(request):
+    activity_enrollments = Enrollment.objects.filter(user=request.user, activity__isnull=False).select_related("activity").order_by("-created_at")
+    opportunity_enrollments = Enrollment.objects.filter(user=request.user, opportunity__isnull=False).select_related("opportunity").order_by("-created_at")
+    completed_courses = CourseProgress.objects.filter(user=request.user, completed=True).select_related("course").order_by("-completed_at")
+    return JsonResponse({
+        "activities": [resource_payload(item.activity) for item in activity_enrollments],
+        "opportunities": [resource_payload(item.opportunity) for item in opportunity_enrollments],
+        "courses": [resource_payload(item.course) for item in completed_courses],
+    })

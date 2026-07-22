@@ -10,6 +10,7 @@ urlpatterns = [
     path("courses/<int:course_id>/complete/", views.complete_course),
     path("activities/", views.activity_list),
     path("activities/<int:activity_id>/enroll/", views.enroll_activity),
+    path("me/growth/", views.growth_records),
     path("mentors/", views.mentor_list),
     path("auth/register/", views.register),
     path("auth/login/", views.login),

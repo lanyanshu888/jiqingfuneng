@@ -76,3 +76,15 @@ class EnrollmentApiTests(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(CourseProgress.objects.filter(user=self.user, course=course, completed=True).exists())
         self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="course_completed").exists())
+
+    def test_growth_records_return_current_users_enrollments_and_courses(self):
+        course = Course.objects.create(title="简历课", status="published")
+        Enrollment.objects.create(user=self.user, activity=self.activity)
+        CourseProgress.objects.create(user=self.user, course=course, completed=True)
+        headers = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
+
+        response = self.client.get("/api/me/growth/", **headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["activities"][0]["title"], "成长营")
+        self.assertEqual(response.json()["courses"][0]["title"], "简历课")
