@@ -17,7 +17,7 @@ Page({
     loginText: "未登录",
     menus: [
       { title: "我的画像", url: "/pages/profile/profile" },
-      { title: "我的报名", type: "toast", text: "已报名活动会在这里展示" },
+      { title: "我的成长记录", url: "/pages/records/records" },
       { title: "我的课程", type: "tab", url: "/pages/growth/growth" },
       { title: "我的岗位申请", type: "tab", url: "/pages/opportunities/opportunities" },
       { title: "我的导师咨询", url: "/pages/mentor/mentor" },

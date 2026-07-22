@@ -13,6 +13,7 @@
     "pages/activity-detail/activity-detail",
     "pages/course-detail/course-detail",
     "pages/mentor/mentor",
+    "pages/records/records",
     "pages/admin/admin"
   ],
   "window": {

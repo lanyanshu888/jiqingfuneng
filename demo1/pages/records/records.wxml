@@ -1,0 +1,47 @@
+<view class="page records-page">
+  <view class="hero compact-hero">
+    <text class="hero-title">我的成长记录</text>
+    <text class="hero-subtitle">每一次报名、学习和咨询都沉淀为你的成长足迹</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="card state-card">正在加载成长记录…</view>
+  <view wx:elif="{{error}}" class="card state-card error-text">{{error}}</view>
+
+  <block wx:else>
+    <view class="section">
+      <text class="section-title">活动报名（{{activities.length}}）</text>
+      <view wx:if="{{!activities.length}}" class="card empty-card">暂无活动报名</view>
+      <view class="card record-card" wx:for="{{activities}}" wx:key="id">
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.place || item.region || "河北省"}}</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">岗位申请（{{opportunities.length}}）</text>
+      <view wx:if="{{!opportunities.length}}" class="card empty-card">暂无岗位申请</view>
+      <view class="card record-card" wx:for="{{opportunities}}" wx:key="id">
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.unit}}｜{{item.region}}</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">已完成课程（{{courses.length}}）</text>
+      <view wx:if="{{!courses.length}}" class="card empty-card">暂无已完成课程</view>
+      <view class="card record-card" wx:for="{{courses}}" wx:key="id">
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.teacher}}｜{{item.duration}}</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">导师咨询（{{consultations.length}}）</text>
+      <view wx:if="{{!consultations.length}}" class="card empty-card">暂无导师咨询</view>
+      <view class="card record-card" wx:for="{{consultations}}" wx:key="id">
+        <text class="card-title">{{item.mentor}}｜{{item.status}}</text>
+        <text class="muted">{{item.question}}</text>
+      </view>
+    </view>
+  </block>
+</view>
