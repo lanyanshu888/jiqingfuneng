@@ -30,3 +30,11 @@ test("agent page renders binding, plan and daily suggestion sections", () => {
     assert.match(template, new RegExp(title));
   }
 });
+
+test("application uses the upgraded 冀青智引 brand", () => {
+  const appConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, "app.json"), "utf8"));
+  const appScript = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
+
+  assert.equal(appConfig.window.navigationBarTitleText, "冀青智引");
+  assert.match(appScript, /appName: "冀青智引"/);
+});

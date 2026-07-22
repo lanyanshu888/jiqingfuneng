@@ -1,6 +1,6 @@
 App({
   globalData: {
-    appName: "冀青赋能",
+    appName: "冀青智引",
     region: "河北省 沧州市",
     servicePhone: "0317-1234567",
     apiBaseUrl: "http://127.0.0.1:8000/api",
