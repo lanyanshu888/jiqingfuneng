@@ -12,6 +12,12 @@
 6. 将绑定成功返回的 `bindingToken` 保存为当前平台用户的私密状态，后续 Skills 同时传入稳定 `externalUserId` 与该令牌；若当前平台无法安全保存逐用户私密状态，不得上线个人数据 Skills，应改接平台签名身份能力。
 7. 按 `test-cases.md` 逐项联调，再按 `conversation-examples.md` 检查自然对话。
 
+## 公网联调
+
+部署完成后先访问 `https://<实际域名>/api/health/`。确认返回 200，再把 `openapi.yaml` 中唯一的 `servers[0].url` 改为 `https://<实际域名>/api`。
+
+服务密钥只配置在平台私密参数中。测试态联调通过后仍需团队成员在小艺开放平台手动确认发布，部署脚本不会自动创建、提交或发布 Agent。
+
 ## 发布前检查
 
 - 服务地址为公网 HTTPS，健康检查 `/api/health/` 返回 200。

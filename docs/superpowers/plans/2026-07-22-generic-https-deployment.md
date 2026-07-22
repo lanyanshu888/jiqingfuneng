@@ -277,7 +277,7 @@ git commit -m "feat: add safe production entrypoint"
 - Modify: `demo1/backend/README.md`
 - Modify: `xiaoyi-agent/README.md`
 
-- [ ] **Step 1: Add a failing packaging contract test**
+- [x] **Step 1: Add a failing packaging contract test**
 
 Extend `tests/test_entrypoint.py` with a test that reads the deployment artifacts and asserts non-root execution, health check, pinned Gunicorn, and local-state exclusions:
 
@@ -293,13 +293,13 @@ Extend `tests/test_entrypoint.py` with a test that reads the deployment artifact
         self.assertIn(".venv", dockerignore)
 ```
 
-- [ ] **Step 2: Run the packaging test and verify RED**
+- [x] **Step 2: Run the packaging test and verify RED**
 
 Run: `cd demo1/backend && .venv/bin/python -m unittest tests.test_entrypoint.EntrypointTests.test_container_contract_is_secure_and_reproducible -v`
 
 Expected: ERROR because `Dockerfile` and `.dockerignore` do not exist.
 
-- [ ] **Step 3: Add the minimal production image**
+- [x] **Step 3: Add the minimal production image**
 
 Add `gunicorn==23.0.0` to `requirements.txt` and create this image definition:
 
@@ -347,7 +347,7 @@ db.sqlite3
 .git
 ```
 
-- [ ] **Step 4: Document exact build, run, HTTPS, persistence and Xiaoyi steps**
+- [x] **Step 4: Document exact build, run, HTTPS, persistence and Xiaoyi steps**
 
 Append a `Docker 部署` section to the backend README with the following operator contract, adapting only surrounding headings to avoid duplication:
 
@@ -384,7 +384,7 @@ Append to `xiaoyi-agent/README.md`:
 仍需团队成员在小艺开放平台手动确认发布，不由部署脚本自动提交。
 ```
 
-- [ ] **Step 5: Run packaging tests and optional image verification**
+- [x] **Step 5: Run packaging tests and optional image verification**
 
 Run: `cd demo1/backend && .venv/bin/python -m unittest tests.test_entrypoint -v`
 
@@ -406,7 +406,10 @@ docker stop jiqing-agent-test
 
 Expected: image builds, health endpoint returns `{"status":"ok","service":"jiqing-backend"}`, and container stops cleanly. If Docker is unavailable, record that image runtime verification is pending rather than claiming it passed.
 
-- [ ] **Step 6: Commit the container package**
+Execution note: this Mac does not expose a `docker` command, so the three packaging
+contract tests passed but image build/runtime verification remains pending on a Docker host.
+
+- [x] **Step 6: Commit the container package**
 
 ```bash
 git add demo1/backend/Dockerfile demo1/backend/.dockerignore demo1/backend/requirements.txt demo1/backend/README.md xiaoyi-agent/README.md demo1/backend/tests/test_entrypoint.py

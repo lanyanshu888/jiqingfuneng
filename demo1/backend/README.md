@@ -56,11 +56,36 @@ export JIQING_AGENT_CONFIRMATION_MAX_AGE_SECONDS="300"
 
 `JIQING_AGENT_SERVICE_KEY` 只允许配置在 Django 服务和小艺 Skills 的服务端认证中，不得写入小程序代码或提交真实生产密钥。
 
+## Docker 部署
+
+容器镜像适用于支持 Docker 的云主机或容器平台。HTTPS 由平台网关或可信反向代理终止，容器内部监听 HTTP。
+
+```bash
+cd demo1/backend
+docker build -t jiqing-agent:latest .
+docker volume create jiqing-agent-data
+docker run --rm -p 8000:8000 \
+  -v jiqing-agent-data:/data \
+  -e JIQING_DEBUG=false \
+  -e JIQING_SECRET_KEY='<至少50位随机值>' \
+  -e JIQING_AGENT_SERVICE_KEY='<至少32位随机值>' \
+  -e JIQING_ALLOWED_HOSTS='agent.example.com' \
+  jiqing-agent:latest
+curl --fail http://127.0.0.1:8000/api/health/
+```
+
+首次需要演示数据时，额外设置 `JIQING_SEED_DEMO=true` 与强随机 `JIQING_DEMO_PASSWORD`；后续启动应移除 `JIQING_SEED_DEMO`。入口脚本每次启动都会执行数据库迁移，但默认不会创建演示账号。
+
+云平台必须把持久磁盘挂载到 `/data`，通过 Secret 管理功能注入密钥，并将实际域名写入 `JIQING_ALLOWED_HOSTS`。如不使用默认数据目录，可通过 `JIQING_SQLITE_PATH` 指定单实例 SQLite 文件；多实例或正式用户环境应迁移 PostgreSQL。
+
+部署完成后访问 `https://<实际域名>/api/health/`。确认返回 200 后，再配置小程序合法域名和小艺测试态。不要把生产密钥写入 Dockerfile、镜像、仓库或 OpenAPI 文件。
+
 ## 验证
 
 ```bash
 .venv/bin/python manage.py check
-.venv/bin/python manage.py test accounts -v 1
+.venv/bin/python manage.py test -v 1
+.venv/bin/python -m unittest tests.test_entrypoint -v
 cd ..
 node --test tests/*.test.js
 ```

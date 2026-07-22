@@ -54,3 +54,14 @@ class EntrypointTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("JIQING_DEMO_PASSWORD", result.stderr)
         self.assertNotIn("seed_demo_data", trace)
+
+    def test_container_contract_is_secure_and_reproducible(self):
+        dockerfile = (BACKEND_DIR / "Dockerfile").read_text(encoding="utf-8")
+        dockerignore = (BACKEND_DIR / ".dockerignore").read_text(encoding="utf-8")
+        requirements = (BACKEND_DIR / "requirements.txt").read_text(encoding="utf-8")
+
+        self.assertIn("USER app", dockerfile)
+        self.assertIn("/api/health/", dockerfile)
+        self.assertIn("gunicorn==23.0.0", requirements)
+        self.assertIn("db.sqlite3", dockerignore)
+        self.assertIn(".venv", dockerignore)
