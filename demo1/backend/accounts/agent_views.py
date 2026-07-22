@@ -10,7 +10,12 @@ from django.views.decorators.http import require_http_methods
 
 from .agent_auth import agent_service_required, agent_skill
 from .agent_protocol import agent_response
-from .agent_services import profile_context_data, update_profile_from_agent
+from .agent_services import (
+    match_resources,
+    profile_context_data,
+    search_policies,
+    update_profile_from_agent,
+)
 from .models import AgentBindingCode, AgentUserBinding
 from .views import auth_required, json_body
 
@@ -148,4 +153,38 @@ def profile_context(request):
         ok=True,
         message="画像已读取",
         data=profile_context_data(request.agent_user),
+    )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@agent_skill("policy_search")
+def policy_search(request):
+    data = request.agent_data
+    result, sources = search_policies(
+        request.agent_user,
+        keyword=data.get("keyword"),
+        region=data.get("region"),
+        category=data.get("category"),
+        limit=data.get("limit", 5),
+    )
+    message = f"找到 {len(result['items'])} 条可能适用的政策" if result["items"] else "暂未找到符合条件的政策"
+    return agent_response(ok=True, message=message, data=result, sources=sources)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@agent_skill("resource_match")
+def resource_match(request):
+    data = request.agent_data
+    result = match_resources(
+        request.agent_user,
+        resource_types=data.get("resourceTypes"),
+        goal=data.get("goal"),
+        limit=data.get("limit", 3),
+    )
+    return agent_response(
+        ok=True,
+        message=f"为你匹配到 {len(result['items'])} 项成长资源",
+        data=result,
     )

@@ -7,6 +7,8 @@ urlpatterns = [
     path("agent/binding-code/", agent_views.create_binding_code),
     path("agent/bind/", agent_views.bind_account),
     path("agent/skills/profile-context/", agent_views.profile_context),
+    path("agent/skills/policy-search/", agent_views.policy_search),
+    path("agent/skills/resource-match/", agent_views.resource_match),
     path("policies/", views.policy_list),
     path("policies/<int:policy_id>/", views.policy_detail),
     path("opportunities/", views.opportunity_list),
