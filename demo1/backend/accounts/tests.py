@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 
-from .models import Activity, Course, Enrollment, Opportunity, Policy
+from .models import Activity, AuthToken, Course, Enrollment, GrowthEvent, Opportunity, Policy
 
 
 class ApiAuthenticationTests(TestCase):
@@ -48,3 +48,21 @@ class ResourceApiTests(TestCase):
         self.assertEqual([item["title"] for item in opportunity_response.json()["items"]], ["可展示岗位"])
         self.assertEqual([item["title"] for item in course_response.json()["items"]], ["可展示课程"])
         self.assertEqual([item["title"] for item in activity_response.json()["items"]], ["可展示活动"])
+
+
+class EnrollmentApiTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="applicant", password="secret123")
+        self.token = AuthToken.create_for_user(self.user)
+        self.activity = Activity.objects.create(title="成长营", status="published")
+
+    def test_activity_enrollment_is_saved_and_second_request_conflicts(self):
+        headers = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
+
+        first = self.client.post(f"/api/activities/{self.activity.id}/enroll/", **headers)
+        second = self.client.post(f"/api/activities/{self.activity.id}/enroll/", **headers)
+
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(second.status_code, 409)
+        self.assertTrue(Enrollment.objects.filter(user=self.user, activity=self.activity).exists())
+        self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="activity_enrolled").exists())

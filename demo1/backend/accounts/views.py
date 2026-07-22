@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import AuthToken, YouthProfile
-from .models import Activity, Course, Mentor, Opportunity, Policy
+from .models import Activity, Course, Enrollment, GrowthEvent, Mentor, Opportunity, Policy
 
 
 def json_body(request):
@@ -194,3 +194,22 @@ def activity_list(request):
 @require_http_methods(["GET"])
 def mentor_list(request):
     return JsonResponse({"items": [resource_payload(item) for item in published_items(Mentor)]})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@auth_required
+def enroll_activity(request, activity_id):
+    activity = Activity.objects.filter(id=activity_id, status=Activity.STATUS_PUBLISHED).first()
+    if not activity:
+        return JsonResponse({"message": "活动不存在"}, status=404)
+    if Enrollment.objects.filter(user=request.user, activity=activity).exists():
+        return JsonResponse({"message": "你已报名该活动"}, status=409)
+    Enrollment.objects.create(user=request.user, activity=activity)
+    GrowthEvent.objects.create(
+        user=request.user,
+        event_type="activity_enrolled",
+        resource_type="activity",
+        resource_id=activity.id,
+    )
+    return JsonResponse({"message": "报名成功", "activityId": activity.id}, status=201)
