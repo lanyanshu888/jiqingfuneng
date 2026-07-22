@@ -28,13 +28,18 @@ class AgentMatchingTests(TestCase):
             tags=["数字运营", "县域就业"],
         )
         AgentUserBinding.objects.create(
-            platform="xiaoyi", external_user_id="xy-match", user=self.user
+            platform="xiaoyi", external_user_id="xy-match", user=self.user,
+            access_token_digest=AgentUserBinding.digest_access_token("match-binding-token"),
         )
 
     def skill_post(self, endpoint, payload):
         return self.client.post(
             endpoint,
-            data=json.dumps({"externalUserId": "xy-match", **payload}),
+            data=json.dumps({
+                "externalUserId": "xy-match",
+                "bindingToken": "match-binding-token",
+                **payload,
+            }),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )
@@ -81,6 +86,18 @@ class AgentMatchingTests(TestCase):
         self.assertEqual(response.json()["sources"], [])
         self.assertIn("暂未找到", response.json()["message"])
 
+    def test_policy_without_source_is_not_returned_as_trusted_result(self):
+        Policy.objects.create(
+            title="无来源就业政策", status="published", region="沧州", source=""
+        )
+
+        response = self.skill_post(
+            "/api/agent/skills/policy-search/", {"keyword": "就业"}
+        )
+
+        self.assertEqual(response.json()["data"]["items"], [])
+        self.assertEqual(response.json()["sources"], [])
+
     def test_resource_match_scores_and_explains_all_resource_types(self):
         Opportunity.objects.create(
             title="黄骅数字运营岗位",
@@ -118,3 +135,15 @@ class AgentMatchingTests(TestCase):
         self.assertEqual(best_opportunity["title"], "黄骅数字运营岗位")
         self.assertGreaterEqual(best_opportunity["score"], 70)
         self.assertTrue(best_opportunity["reasons"])
+
+    def test_invalid_limit_uses_safe_default_instead_of_server_error(self):
+        Policy.objects.create(
+            title="就业服务政策", status="published", region="沧州", source="沧州市人社局"
+        )
+        response = self.skill_post(
+            "/api/agent/skills/policy-search/",
+            {"keyword": "就业", "limit": "not-a-number"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])

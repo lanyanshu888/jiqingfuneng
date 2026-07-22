@@ -88,6 +88,18 @@ def agent_skill(skill_name):
                         status=403,
                     )
 
+                binding_token = str(data.get("bindingToken") or "")
+                supplied_digest = AgentUserBinding.digest_access_token(binding_token)
+                if not binding.access_token_digest or not secrets.compare_digest(
+                    binding.access_token_digest, supplied_digest
+                ):
+                    return agent_response(
+                        ok=False,
+                        message="账号绑定凭据无效，请重新绑定",
+                        error_code="AGENT_BINDING_TOKEN_INVALID",
+                        status=403,
+                    )
+
                 user = binding.user
                 request.agent_user = user
                 response = view_func(request, *args, **kwargs)

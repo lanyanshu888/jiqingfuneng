@@ -8,6 +8,8 @@ from django.utils import timezone
 from .models import (
     AgentUserBinding,
     AuthToken,
+    Course,
+    CourseProgress,
     GrowthPlan,
     GrowthTask,
     ProactiveSuggestion,
@@ -32,14 +34,18 @@ class AgentSuggestionTests(TestCase):
             abilities=["沟通表达"],
         )
         AgentUserBinding.objects.create(
-            platform="xiaoyi", external_user_id="xy-daily", user=self.user
+            platform="xiaoyi", external_user_id="xy-daily", user=self.user,
+            access_token_digest=AgentUserBinding.digest_access_token("daily-binding-token"),
         )
         self.plan = GrowthPlan.objects.create(user=self.user, goal="数字运营就业")
 
     def skill_post(self):
         return self.client.post(
             self.endpoint,
-            data=json.dumps({"externalUserId": "xy-daily"}),
+            data=json.dumps({
+                "externalUserId": "xy-daily",
+                "bindingToken": "daily-binding-token",
+            }),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )
@@ -99,3 +105,22 @@ class AgentSuggestionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["plan"]["goal"], "数字运营就业")
         self.assertEqual(response.json()["suggestions"][0]["priority"], "urgent")
+
+    def test_completed_resource_is_not_recommended_again(self):
+        course = Course.objects.create(
+            title="已完成数字运营课", status="published", tags=["数字运营"]
+        )
+        CourseProgress.objects.create(
+            user=self.user,
+            course=course,
+            completed=True,
+            completed_at=timezone.now(),
+        )
+
+        response = self.skill_post()
+
+        resource_suggestions = [
+            item for item in response.json()["data"]["suggestions"]
+            if item["suggestionType"] == "resource"
+        ]
+        self.assertEqual(resource_suggestions, [])

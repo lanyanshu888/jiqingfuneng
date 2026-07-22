@@ -1,4 +1,5 @@
 import secrets
+import hashlib
 from datetime import date
 
 from django.conf import settings
@@ -191,6 +192,7 @@ class AgentUserBinding(models.Model):
     platform = models.CharField(max_length=30, default="xiaoyi")
     external_user_id = models.CharField(max_length=200)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="agent_bindings")
+    access_token_digest = models.CharField(max_length=64, blank=True, db_index=True)
     is_active = models.BooleanField(default=True)
     bound_at = models.DateTimeField(auto_now_add=True)
 
@@ -204,6 +206,16 @@ class AgentUserBinding(models.Model):
             ),
         ]
         indexes = [models.Index(fields=["platform", "external_user_id", "is_active"], name="agent_binding_lookup_idx")]
+
+    @staticmethod
+    def digest_access_token(token):
+        return hashlib.sha256(str(token).encode("utf-8")).hexdigest()
+
+    def issue_access_token(self):
+        token = secrets.token_urlsafe(32)
+        self.access_token_digest = self.digest_access_token(token)
+        self.save(update_fields=["access_token_digest"])
+        return token
 
 
 class AgentConversation(models.Model):

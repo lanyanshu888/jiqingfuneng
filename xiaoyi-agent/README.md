@@ -9,7 +9,7 @@
 3. 在小艺开放平台创建 Agent，将 `system-prompt.md` 内容作为系统提示词。
 4. 在平台的工具、插件或 Skills 配置入口导入 `openapi.yaml`。控制台入口名称可能调整，以当前页面显示为准。
 5. 将同一个服务密钥安全配置为 `X-Agent-Service-Key`，不要写进提示词或用户可见字段。
-6. 确认平台稳定用户标识映射到每次请求的 `externalUserId`。
+6. 将绑定成功返回的 `bindingToken` 保存为当前平台用户的私密状态，后续 Skills 同时传入稳定 `externalUserId` 与该令牌；若当前平台无法安全保存逐用户私密状态，不得上线个人数据 Skills，应改接平台签名身份能力。
 7. 按 `test-cases.md` 逐项联调，再按 `conversation-examples.md` 检查自然对话。
 
 ## 发布前检查

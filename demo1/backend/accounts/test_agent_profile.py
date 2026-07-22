@@ -19,13 +19,14 @@ class AgentProfileTests(TestCase):
             intents=["想找工作"],
         )
         AgentUserBinding.objects.create(
-            platform="xiaoyi", external_user_id="xy-profile", user=self.user
+            platform="xiaoyi", external_user_id="xy-profile", user=self.user,
+            access_token_digest=AgentUserBinding.digest_access_token("profile-binding-token"),
         )
 
     def skill_post(self, payload):
         return self.client.post(
             self.endpoint,
-            data=json.dumps(payload),
+            data=json.dumps({"bindingToken": "profile-binding-token", **payload}),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )
@@ -71,15 +72,23 @@ class AgentProfileTests(TestCase):
         self.assertEqual(self.profile.region, "")
 
     def test_confirmed_update_saves_only_allowed_fields(self):
+        changes = {
+            "region": "河北省沧州市",
+            "major": "电子商务",
+            "user": 999,
+        }
+        preview = self.skill_post({
+            "externalUserId": "xy-profile",
+            "operation": "update",
+            "changes": changes,
+            "confirmed": False,
+        }).json()
         response = self.skill_post({
             "externalUserId": "xy-profile",
             "operation": "update",
-            "changes": {
-                "region": "河北省沧州市",
-                "major": "电子商务",
-                "user": 999,
-            },
+            "changes": changes,
             "confirmed": True,
+            "confirmationToken": preview["data"]["confirmationToken"],
         })
 
         self.profile.refresh_from_db()
@@ -90,3 +99,24 @@ class AgentProfileTests(TestCase):
         self.assertTrue(GrowthEvent.objects.filter(
             user=self.user, event_type="profile_updated_by_agent"
         ).exists())
+
+    def test_profile_confirmation_token_rejects_changed_fields(self):
+        preview = self.skill_post({
+            "externalUserId": "xy-profile",
+            "operation": "update",
+            "changes": {"region": "河北省沧州市"},
+            "confirmed": False,
+        }).json()
+
+        response = self.skill_post({
+            "externalUserId": "xy-profile",
+            "operation": "update",
+            "changes": {"region": "河北省石家庄市"},
+            "confirmed": True,
+            "confirmationToken": preview["data"]["confirmationToken"],
+        })
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["errorCode"], "CONFIRMATION_MISMATCH")
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.region, "")

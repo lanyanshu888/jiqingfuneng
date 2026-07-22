@@ -49,3 +49,16 @@ class XiaoyiContractTests(SimpleTestCase):
 
         self.assertIn("confirmed", properties)
         self.assertIn("confirmationToken", properties)
+
+    def test_every_skill_requires_binding_token(self):
+        document = self.load_document()
+        skill_paths = [
+            path for path in document["paths"]
+            if path.startswith("/agent/skills/")
+        ]
+        for path in skill_paths:
+            schema = document["paths"][path]["post"]["requestBody"][
+                "content"
+            ]["application/json"]["schema"]
+            self.assertIn("bindingToken", schema["required"], path)
+            self.assertIn("bindingToken", schema["properties"], path)

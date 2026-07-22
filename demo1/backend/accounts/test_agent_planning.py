@@ -23,13 +23,18 @@ class AgentPlanningTests(TestCase):
             tags=["数字运营"],
         )
         AgentUserBinding.objects.create(
-            platform="xiaoyi", external_user_id="xy-plan", user=self.user
+            platform="xiaoyi", external_user_id="xy-plan", user=self.user,
+            access_token_digest=AgentUserBinding.digest_access_token("plan-binding-token"),
         )
 
     def skill_post(self, payload):
         return self.client.post(
             self.endpoint,
-            data=json.dumps({"externalUserId": "xy-plan", **payload}),
+            data=json.dumps({
+                "externalUserId": "xy-plan",
+                "bindingToken": "plan-binding-token",
+                **payload,
+            }),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )

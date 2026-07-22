@@ -1,4 +1,5 @@
 import json
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -25,14 +26,19 @@ class AgentActionTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="action-user")
         AgentUserBinding.objects.create(
-            platform="xiaoyi", external_user_id="xy-action", user=self.user
+            platform="xiaoyi", external_user_id="xy-action", user=self.user,
+            access_token_digest=AgentUserBinding.digest_access_token("action-binding-token"),
         )
         self.activity = Activity.objects.create(title="县域成长营", status="published")
 
     def skill_post(self, payload):
         return self.client.post(
             self.endpoint,
-            data=json.dumps({"externalUserId": "xy-action", **payload}),
+            data=json.dumps({
+                "externalUserId": "xy-action",
+                "bindingToken": "action-binding-token",
+                **payload,
+            }),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )
@@ -124,3 +130,34 @@ class AgentActionTests(TestCase):
         self.assertEqual(first.status_code, 201)
         self.assertEqual(second.status_code, 200)
         self.assertEqual(Favorite.objects.filter(user=self.user).count(), 1)
+
+    def test_expired_policy_cannot_be_favorited(self):
+        expired = Policy.objects.create(
+            title="过期政策",
+            status="published",
+            source="人社部门",
+            effective_until=date.today() - timedelta(days=1),
+        )
+
+        response = self.skill_post({
+            "action": "favorite_resource",
+            "resourceType": "policy",
+            "resourceId": expired.id,
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["errorCode"], "RESOURCE_UNAVAILABLE")
+
+    def test_full_activity_cannot_accept_another_enrollment(self):
+        full_activity = Activity.objects.create(
+            title="满员活动", status="published", capacity=1
+        )
+        other = User.objects.create_user(username="already-enrolled")
+        Enrollment.objects.create(user=other, activity=full_activity)
+
+        response = self.skill_post({
+            "action": "enroll_activity", "resourceId": full_activity.id
+        })
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["errorCode"], "ACTIVITY_FULL")

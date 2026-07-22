@@ -3,8 +3,22 @@ from datetime import date, timedelta
 from django.db import models, transaction
 from django.utils import timezone
 
-from .models import Activity, Course, GrowthPlan, GrowthTask, Mentor, Opportunity, Policy
-from .models import GrowthEvent, ProactiveSuggestion, YouthProfile
+from .models import (
+    Activity,
+    Course,
+    CourseProgress,
+    Enrollment,
+    Favorite,
+    GrowthEvent,
+    GrowthPlan,
+    GrowthTask,
+    Mentor,
+    MentorConsultation,
+    Opportunity,
+    Policy,
+    ProactiveSuggestion,
+    YouthProfile,
+)
 
 
 PROFILE_FIELDS = (
@@ -77,6 +91,14 @@ def _text_contains(value, query):
     return not query or query.lower() in str(value or "").lower()
 
 
+def _safe_limit(value, default):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+    return max(1, min(parsed, 5))
+
+
 def _regions_match(resource_region, requested_region):
     if not requested_region or not resource_region:
         return True
@@ -93,7 +115,8 @@ def search_policies(user, keyword="", region="", category="", limit=5):
     requested_region = str(region or (profile.region if profile else ""))[:100].strip()
     keyword = str(keyword or "")[:50].strip()
     category = str(category or "")[:50].strip()
-    policies = Policy.objects.filter(status=Policy.STATUS_PUBLISHED).filter(
+    result_limit = _safe_limit(limit, 5)
+    policies = Policy.objects.filter(status=Policy.STATUS_PUBLISHED).exclude(source="").filter(
         models.Q(effective_until__isnull=True) | models.Q(effective_until__gte=date.today())
     ).order_by("-published_at", "-created_at")
 
@@ -113,7 +136,7 @@ def search_policies(user, keyword="", region="", category="", limit=5):
         if not _text_contains(searchable, keyword):
             continue
         matched.append(policy)
-        if len(matched) >= max(1, min(int(limit or 5), 5)):
+        if len(matched) >= result_limit:
             break
 
     items = []
@@ -223,7 +246,7 @@ def match_resources(user, resource_types=None, goal="", limit=3):
     profile = YouthProfile.objects.filter(user=user).first()
     selected_types = resource_types if isinstance(resource_types, list) else list(RESOURCE_MODELS)
     selected_types = [item for item in selected_types if item in RESOURCE_MODELS]
-    per_type_limit = max(1, min(int(limit or 3), 5))
+    per_type_limit = _safe_limit(limit, 3)
     items = []
     for resource_type in selected_types:
         ranked = []
@@ -338,6 +361,30 @@ def _plan_summary(plan):
     }
 
 
+def _resource_already_used(user, resource):
+    resource_type = resource["resourceType"]
+    resource_id = resource["resourceId"]
+    if Favorite.objects.filter(
+        user=user, resource_type=resource_type, resource_id=resource_id
+    ).exists():
+        return True
+    if resource_type == "opportunity":
+        return Enrollment.objects.filter(
+            user=user, opportunity_id=resource_id
+        ).exists()
+    if resource_type == "activity":
+        return Enrollment.objects.filter(user=user, activity_id=resource_id).exists()
+    if resource_type == "course":
+        return CourseProgress.objects.filter(
+            user=user, course_id=resource_id, completed=True
+        ).exists()
+    if resource_type == "mentor":
+        return MentorConsultation.objects.filter(
+            user=user, mentor_id=resource_id
+        ).exists()
+    return False
+
+
 def build_daily_suggestions(user, now=None):
     now = now or timezone.now()
     plan = GrowthPlan.objects.filter(
@@ -376,9 +423,12 @@ def build_daily_suggestions(user, now=None):
             })
 
     if len(candidates) < 3:
-        matched = match_resources(user, limit=1)["items"]
-        if matched:
-            resource = matched[0]
+        matched = match_resources(user, limit=5)["items"]
+        resource = next(
+            (item for item in matched if not _resource_already_used(user, item)),
+            None,
+        )
+        if resource:
             candidates.append({
                 "suggestionType": "resource",
                 "priority": "normal",

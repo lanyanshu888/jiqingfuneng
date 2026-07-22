@@ -19,6 +19,7 @@ from .models import (
 
 
 SIGNING_SALT = "jiqing-agent-action"
+PROFILE_SIGNING_SALT = "jiqing-agent-profile-update"
 ACTION_RESOURCE_TYPES = {
     "enroll_activity": "activity",
     "apply_opportunity": "opportunity",
@@ -41,6 +42,29 @@ class AgentActionError(Exception):
         self.status = status
 
 
+def prepare_profile_confirmation(user, changes):
+    return signing.dumps(
+        {"userId": user.id, "changes": changes},
+        salt=PROFILE_SIGNING_SALT,
+        compress=True,
+    )
+
+
+def validate_profile_confirmation(user, changes, token):
+    try:
+        actual = signing.loads(
+            token,
+            salt=PROFILE_SIGNING_SALT,
+            max_age=settings.AGENT_CONFIRMATION_MAX_AGE_SECONDS,
+        )
+    except signing.SignatureExpired as exc:
+        raise AgentActionError("确认已过期，请重新确认", "CONFIRMATION_EXPIRED") from exc
+    except signing.BadSignature as exc:
+        raise AgentActionError("确认标识无效", "CONFIRMATION_INVALID") from exc
+    if actual != {"userId": user.id, "changes": changes}:
+        raise AgentActionError("确认内容与当前画像变更不一致", "CONFIRMATION_MISMATCH")
+
+
 def _normalize(user, action, resource_id, resource_type=""):
     action = str(action or "").strip()
     if action not in {*ACTION_RESOURCE_TYPES, "favorite_resource"}:
@@ -59,13 +83,18 @@ def _normalize(user, action, resource_id, resource_type=""):
     return payload
 
 
-def _resource_for_action(user, payload):
+def _resource_for_action(user, payload, lock=False):
     action = payload["action"]
     resource_id = payload["resourceId"]
     if action == "enroll_activity":
-        resource = Activity.objects.filter(id=resource_id, status="published").first()
+        activities = Activity.objects.select_for_update() if lock else Activity.objects
+        resource = activities.filter(id=resource_id, status="published").first()
         if resource and resource.starts_at and resource.starts_at < timezone.now():
             resource = None
+        if resource and resource.capacity and not Enrollment.objects.filter(
+            user=user, activity=resource
+        ).exists() and Enrollment.objects.filter(activity=resource).count() >= resource.capacity:
+            raise AgentActionError("活动名额已满", "ACTIVITY_FULL", 409)
     elif action == "apply_opportunity":
         resource = Opportunity.objects.filter(id=resource_id, status="published").first()
         if resource and resource.deadline and resource.deadline < date.today():
@@ -77,6 +106,12 @@ def _resource_for_action(user, payload):
     else:
         model = FAVORITE_MODELS[payload["resourceType"]]
         resource = model.objects.filter(id=resource_id, status="published").first()
+        if isinstance(resource, Policy) and resource.effective_until and resource.effective_until < date.today():
+            resource = None
+        if isinstance(resource, Opportunity) and resource.deadline and resource.deadline < date.today():
+            resource = None
+        if isinstance(resource, Activity) and resource.starts_at and resource.starts_at < timezone.now():
+            resource = None
     if not resource:
         raise AgentActionError("资源不存在、已过期或不可操作", "RESOURCE_UNAVAILABLE", 404)
     return resource
@@ -115,7 +150,7 @@ def _confirmed_payload(user, action, resource_id, resource_type, token):
 @transaction.atomic
 def execute_action(user, action, resource_id, resource_type, token):
     payload = _confirmed_payload(user, action, resource_id, resource_type, token)
-    resource = _resource_for_action(user, payload)
+    resource = _resource_for_action(user, payload, lock=True)
     action = payload["action"]
     if action == "enroll_activity":
         _record, created = Enrollment.objects.get_or_create(user=user, activity=resource)

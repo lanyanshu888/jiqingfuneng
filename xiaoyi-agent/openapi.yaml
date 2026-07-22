@@ -42,10 +42,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId]
+              required: [externalUserId, bindingToken]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 绑定成功后返回的当前用户私密访问令牌，不得向用户展示
                 operation:
                   type: string
                   enum: [read, update]
@@ -56,6 +59,9 @@ paths:
                 confirmed:
                   type: boolean
                   default: false
+                confirmationToken:
+                  type: string
+                  description: 更新预览返回的短时签名令牌；确认更新时原样传回
       responses:
         '200':
           $ref: '#/components/responses/AgentSuccess'
@@ -71,10 +77,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId, goal]
+              required: [externalUserId, bindingToken, goal]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 当前绑定的私密访问令牌
                 goal:
                   type: string
                   maxLength: 255
@@ -93,10 +102,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId]
+              required: [externalUserId, bindingToken]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 当前绑定的私密访问令牌
                 keyword:
                   type: string
                   maxLength: 50
@@ -124,10 +136,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId]
+              required: [externalUserId, bindingToken]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 当前绑定的私密访问令牌
                 resourceTypes:
                   type: array
                   items:
@@ -155,10 +170,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId, action, resourceId]
+              required: [externalUserId, bindingToken, action, resourceId]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 当前绑定的私密访问令牌
                 action:
                   type: string
                   enum: [enroll_activity, apply_opportunity, favorite_resource, complete_course, complete_task]
@@ -191,10 +209,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [externalUserId]
+              required: [externalUserId, bindingToken]
               properties:
                 externalUserId:
                   type: string
+                bindingToken:
+                  type: string
+                  description: 当前绑定的私密访问令牌
       responses:
         '200':
           $ref: '#/components/responses/AgentSuccess'

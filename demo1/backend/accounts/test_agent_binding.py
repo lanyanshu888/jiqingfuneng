@@ -87,3 +87,14 @@ class AgentBindingTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(old.is_active)
         self.assertTrue(AgentUserBinding.objects.get(external_user_id="xy-new").is_active)
+
+    def test_bind_rejects_malformed_json_with_stable_protocol(self):
+        response = self.client.post(
+            "/api/agent/bind/",
+            data="{broken",
+            content_type="application/json",
+            HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["errorCode"], "INVALID_JSON")

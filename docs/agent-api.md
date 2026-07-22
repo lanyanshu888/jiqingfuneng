@@ -5,7 +5,7 @@
 - 基础地址：`https://你的域名/api`
 - 小程序个人接口：`Authorization: Token <用户登录令牌>`
 - 小艺服务接口：`X-Agent-Service-Key: <服务端密钥>`
-- 小艺 Skill 请求中的 `externalUserId` 必须使用平台提供的当前用户标识，不能由对话用户自由指定。
+- 绑定成功返回 `bindingToken`。后续每个 Skill 必须同时提交平台当前用户的 `externalUserId` 和私密 `bindingToken`；两者不匹配即拒绝，不能由对话用户自由指定或查看令牌。
 
 所有 Skills 返回：
 
@@ -44,6 +44,8 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 
 常见错误：`BINDING_CODE_INVALID`、`BINDING_CODE_EXPIRED`、`EXTERNAL_ID_ALREADY_BOUND`。
 
+成功响应的 `data.bindingToken` 只保存到小艺当前用户的私密工具状态，不显示在对话中。
+
 ## 3. 青年画像
 
 `POST /agent/skills/profile-context/`
@@ -51,7 +53,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 读取：
 
 ```json
-{"externalUserId":"xiaoyi-user-001","operation":"read"}
+{"externalUserId":"xiaoyi-user-001","bindingToken":"private-binding-token","operation":"read"}
 ```
 
 更新分两次。首次发送变更但不确认，响应为 `requiresConfirmation=true`；用户明确同意后发送：
@@ -59,6 +61,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 ```json
 {
   "externalUserId":"xiaoyi-user-001",
+  "bindingToken":"private-binding-token",
   "operation":"update",
   "changes":{"region":"河北省沧州市黄骅市","major":"电子商务"},
   "confirmed":true
@@ -70,7 +73,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 `POST /agent/skills/career-plan/`
 
 ```json
-{"externalUserId":"xiaoyi-user-001","goal":"在河北县域从事数字运营"}
+{"externalUserId":"xiaoyi-user-001","bindingToken":"private-binding-token","goal":"在河北县域从事数字运营"}
 ```
 
 返回 7 天、1 个月、3 个月任务和生成依据。画像或目标不完整时返回 `PROFILE_INCOMPLETE` 与 `missingFields`。
@@ -82,6 +85,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 ```json
 {
   "externalUserId":"xiaoyi-user-001",
+  "bindingToken":"private-binding-token",
   "keyword":"高校毕业生就业",
   "region":"沧州",
   "limit":5
@@ -97,6 +101,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 ```json
 {
   "externalUserId":"xiaoyi-user-001",
+  "bindingToken":"private-binding-token",
   "resourceTypes":["opportunity","course","activity","mentor"],
   "goal":"数字运营",
   "limit":3
@@ -114,7 +119,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 首次预览：
 
 ```json
-{"externalUserId":"xiaoyi-user-001","action":"enroll_activity","resourceId":12}
+{"externalUserId":"xiaoyi-user-001","bindingToken":"private-binding-token","action":"enroll_activity","resourceId":12}
 ```
 
 响应包含 `requiresConfirmation=true` 和 `data.confirmationToken`。用户明确确认后，第二次调用必须原样携带动作与资源：
@@ -122,6 +127,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 ```json
 {
   "externalUserId":"xiaoyi-user-001",
+  "bindingToken":"private-binding-token",
   "action":"enroll_activity",
   "resourceId":12,
   "confirmed":true,
@@ -136,7 +142,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 小艺调用 `POST /agent/skills/daily-suggestion/`：
 
 ```json
-{"externalUserId":"xiaoyi-user-001"}
+{"externalUserId":"xiaoyi-user-001","bindingToken":"private-binding-token"}
 ```
 
 小程序调用 `GET /agent/me/dashboard/`，使用用户 Token。两端复用相同建议逻辑，优先级依次为逾期任务、24 小时内到期任务、画像补全和匹配资源。
@@ -147,6 +153,7 @@ curl -X POST https://api.example.com/api/agent/bind/ \
 |---|---|
 | `INVALID_SERVICE_CREDENTIAL` | 服务密钥缺失或错误 |
 | `AGENT_USER_NOT_BOUND` | 当前小艺身份尚未绑定 |
+| `AGENT_BINDING_TOKEN_INVALID` | 当前用户绑定访问令牌缺失或不匹配 |
 | `INVALID_JSON` | 请求不是合法 JSON 对象 |
 | `PROFILE_INCOMPLETE` | 制定规划所需字段不完整 |
 | `ACTION_NOT_SUPPORTED` | 不支持该写操作 |

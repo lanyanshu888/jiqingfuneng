@@ -1,4 +1,5 @@
 import hashlib
+import json
 import secrets
 from datetime import timedelta
 
@@ -9,7 +10,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .agent_auth import agent_service_required, agent_skill
-from .agent_actions import AgentActionError, execute_action, prepare_action
+from .agent_actions import (
+    AgentActionError,
+    execute_action,
+    prepare_action,
+    prepare_profile_confirmation,
+    validate_profile_confirmation,
+)
 from .agent_protocol import agent_response
 from .agent_services import (
     REQUIRED_PROFILE_FIELDS,
@@ -21,7 +28,7 @@ from .agent_services import (
     update_profile_from_agent,
 )
 from .models import AgentBindingCode, AgentUserBinding
-from .views import auth_required, json_body
+from .views import auth_required
 
 
 BINDING_CODE_LIFETIME_SECONDS = 600
@@ -70,7 +77,22 @@ def create_binding_code(request):
 @require_http_methods(["POST"])
 @agent_service_required
 def bind_account(request):
-    data = json_body(request)
+    try:
+        data = json.loads(request.body.decode("utf-8")) if request.body else {}
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return agent_response(
+            ok=False,
+            message="请求内容不是有效 JSON",
+            error_code="INVALID_JSON",
+            status=400,
+        )
+    if not isinstance(data, dict):
+        return agent_response(
+            ok=False,
+            message="请求内容必须是对象",
+            error_code="INVALID_JSON",
+            status=400,
+        )
     external_user_id = str(data.get("externalUserId") or "").strip()
     code = str(data.get("code") or "").strip()
     if not external_user_id:
@@ -121,18 +143,23 @@ def bind_account(request):
         AgentUserBinding.objects.filter(
             platform="xiaoyi", user=binding_code.user, is_active=True
         ).exclude(external_user_id=external_user_id).update(is_active=False)
-        AgentUserBinding.objects.update_or_create(
+        binding, _created = AgentUserBinding.objects.update_or_create(
             platform="xiaoyi",
             external_user_id=external_user_id,
             defaults={"user": binding_code.user, "is_active": True},
         )
+        binding_token = binding.issue_access_token()
         binding_code.used_at = timezone.now()
         binding_code.save(update_fields=["used_at"])
 
     return agent_response(
         ok=True,
         message="账号绑定成功",
-        data={"bound": True, "platform": "xiaoyi"},
+        data={
+            "bound": True,
+            "platform": "xiaoyi",
+            "bindingToken": binding_token,
+        },
     )
 
 
@@ -144,11 +171,30 @@ def profile_context(request):
     if data.get("operation") == "update":
         changes = data.get("changes") if isinstance(data.get("changes"), dict) else {}
         if data.get("confirmed") is not True:
+            confirmation_token = prepare_profile_confirmation(
+                request.agent_user, changes
+            )
             return agent_response(
                 ok=True,
                 message="请确认是否更新青年画像",
-                data={"changes": changes},
+                data={
+                    "changes": changes,
+                    "confirmationToken": confirmation_token,
+                },
                 requires_confirmation=True,
+            )
+        try:
+            validate_profile_confirmation(
+                request.agent_user,
+                changes,
+                str(data.get("confirmationToken") or ""),
+            )
+        except AgentActionError as exc:
+            return agent_response(
+                ok=False,
+                message=exc.message,
+                error_code=exc.code,
+                status=exc.status,
             )
         context = update_profile_from_agent(request.agent_user, changes)
         return agent_response(ok=True, message="青年画像已更新", data=context)
