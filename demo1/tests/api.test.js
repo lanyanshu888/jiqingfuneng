@@ -36,3 +36,10 @@ test("growth records call the current user endpoint", async () => {
   assert.equal(lastRequest.url, "https://example.test/api/me/growth/");
   assert.equal(lastRequest.method, "GET");
 });
+
+test("opportunity enrollment calls the opportunity enrollment endpoint", async () => {
+  await api.enrollOpportunity(9);
+
+  assert.equal(lastRequest.url, "https://example.test/api/opportunities/9/enroll/");
+  assert.equal(lastRequest.method, "POST");
+});

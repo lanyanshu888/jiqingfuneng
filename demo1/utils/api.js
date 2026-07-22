@@ -59,6 +59,13 @@ function enrollActivity(activityId) {
   });
 }
 
+function enrollOpportunity(opportunityId) {
+  return request({
+    url: `/opportunities/${opportunityId}/enroll/`,
+    method: "POST"
+  });
+}
+
 function completeCourse(courseId) {
   return request({
     url: `/courses/${courseId}/complete/`,
@@ -77,6 +84,7 @@ module.exports = {
   getMe,
   saveRemoteProfile,
   enrollActivity,
+  enrollOpportunity,
   completeCourse,
   getGrowthRecords
 };

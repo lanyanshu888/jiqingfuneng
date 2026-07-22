@@ -1,4 +1,5 @@
 const { opportunities } = require("../../utils/data");
+const { enrollOpportunity } = require("../../utils/api");
 
 Page({
   data: {
@@ -13,6 +14,15 @@ Page({
   },
 
   join() {
+    if (wx.getStorageSync("authToken") && /^\d+$/.test(String(this.data.opportunity.id))) {
+      enrollOpportunity(this.data.opportunity.id).then(() => {
+        this.setData({ joined: true });
+        wx.showToast({ title: "申请已提交", icon: "success" });
+      }).catch((error) => {
+        wx.showToast({ title: error.message || "申请失败，请稍后重试", icon: "none" });
+      });
+      return;
+    }
     const joinedIds = wx.getStorageSync("joinedOpportunities") || [];
     if (!joinedIds.includes(this.data.opportunity.id)) {
       joinedIds.push(this.data.opportunity.id);
