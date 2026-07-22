@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.core.management import call_command
 from django.test import TestCase
 
 from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Opportunity, Policy
@@ -66,6 +67,16 @@ class ResourceApiTests(TestCase):
         self.assertEqual(self.client.get(f"/api/opportunities/{opportunity.id}/").json()["title"], "实习")
         self.assertEqual(self.client.get(f"/api/courses/{course.id}/").json()["title"], "课程")
         self.assertEqual(self.client.get(f"/api/activities/{activity.id}/").json()["title"], "活动")
+
+
+class DemoDataCommandTests(TestCase):
+    def test_seed_demo_data_creates_published_resources(self):
+        call_command("seed_demo_data")
+
+        self.assertGreater(Policy.objects.filter(status="published").count(), 0)
+        self.assertGreater(Opportunity.objects.filter(status="published").count(), 0)
+        self.assertGreater(Course.objects.filter(status="published").count(), 0)
+        self.assertGreater(Activity.objects.filter(status="published").count(), 0)
 
 
 class EnrollmentApiTests(TestCase):
