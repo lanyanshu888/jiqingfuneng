@@ -52,10 +52,31 @@ function saveRemoteProfile(profile) {
   });
 }
 
+function enrollActivity(activityId) {
+  return request({
+    url: `/activities/${activityId}/enroll/`,
+    method: "POST"
+  });
+}
+
+function completeCourse(courseId) {
+  return request({
+    url: `/courses/${courseId}/complete/`,
+    method: "POST"
+  });
+}
+
+function getGrowthRecords() {
+  return request({ url: "/me/growth/" });
+}
+
 module.exports = {
   request,
   login,
   register,
   getMe,
-  saveRemoteProfile
+  saveRemoteProfile,
+  enrollActivity,
+  completeCourse,
+  getGrowthRecords
 };

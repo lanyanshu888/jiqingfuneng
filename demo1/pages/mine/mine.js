@@ -1,4 +1,5 @@
 const { setTabBar } = require("../../utils/tabbar");
+const { getGrowthRecords } = require("../../utils/api");
 
 Page({
   data: {
@@ -35,7 +36,7 @@ Page({
       activityJoined: 0
     };
     const points = (progress.profile ? 10 : 0) + progress.policyViews * 5 + progress.courseFinished * 20 + progress.activityJoined * 20;
-    this.setData({
+    const display = {
       profile,
       progress,
       points,
@@ -43,7 +44,22 @@ Page({
       loginText: user ? `已登录：${user.username}` : "未登录",
       avatarText: profile ? profile.nickname.slice(0, 1) : "青",
       tagCount: profile ? profile.tags.length : 0
-    });
+    };
+    this.setData(display);
+
+    if (user && wx.getStorageSync("authToken")) {
+      getGrowthRecords().then((records) => {
+        const remoteProgress = {
+          ...progress,
+          activityJoined: records.activities.length,
+          courseFinished: records.courses.length
+        };
+        this.setData({
+          progress: remoteProgress,
+          points: (remoteProgress.profile ? 10 : 0) + remoteProgress.policyViews * 5 + remoteProgress.courseFinished * 20 + remoteProgress.activityJoined * 20
+        });
+      }).catch(() => {});
+    }
   },
 
   goLogin() {
