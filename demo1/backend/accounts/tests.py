@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib import admin
 from django.db import IntegrityError
 from django.core.management import call_command
 from django.test import TestCase
@@ -116,6 +117,12 @@ class MentorConsultationApiTests(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(MentorConsultation.objects.filter(user=user, mentor=mentor).exists())
         self.assertEqual(records.json()["consultations"][0]["question"], "如何准备创业计划书？")
+
+
+class AdminRegistrationTests(TestCase):
+    def test_growth_resources_are_registered_in_django_admin(self):
+        for model in (Policy, Opportunity, Course, Activity, Mentor, Enrollment, CourseProgress, MentorConsultation):
+            self.assertTrue(admin.site.is_registered(model), model.__name__)
 
 
 class EnrollmentApiTests(TestCase):
