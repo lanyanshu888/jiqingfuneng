@@ -58,6 +58,18 @@ class AgentProfileTests(TestCase):
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.region, "")
 
+    def test_string_false_does_not_count_as_profile_confirmation(self):
+        response = self.skill_post({
+            "externalUserId": "xy-profile",
+            "operation": "update",
+            "changes": {"region": "河北省沧州市"},
+            "confirmed": "false",
+        })
+
+        self.assertTrue(response.json()["requiresConfirmation"])
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.region, "")
+
     def test_confirmed_update_saves_only_allowed_fields(self):
         response = self.skill_post({
             "externalUserId": "xy-profile",

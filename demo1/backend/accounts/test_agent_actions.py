@@ -60,6 +60,17 @@ class AgentActionTests(TestCase):
             user=self.user, event_type="activity_enrolled"
         ).exists())
 
+    def test_string_false_does_not_count_as_action_confirmation(self):
+        response = self.skill_post({
+            "action": "enroll_activity",
+            "resourceId": self.activity.id,
+            "confirmed": "false",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["requiresConfirmation"])
+        self.assertFalse(Enrollment.objects.filter(user=self.user).exists())
+
     def test_confirmation_token_rejects_changed_resource(self):
         other = Activity.objects.create(title="另一个活动", status="published")
         token = self.skill_post({

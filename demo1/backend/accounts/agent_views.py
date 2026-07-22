@@ -143,7 +143,7 @@ def profile_context(request):
     data = request.agent_data
     if data.get("operation") == "update":
         changes = data.get("changes") if isinstance(data.get("changes"), dict) else {}
-        if not data.get("confirmed"):
+        if data.get("confirmed") is not True:
             return agent_response(
                 ok=True,
                 message="请确认是否更新青年画像",
@@ -231,7 +231,7 @@ def growth_action(request):
     resource_id = data.get("resourceId")
     resource_type = data.get("resourceType", "")
     try:
-        if not data.get("confirmed"):
+        if data.get("confirmed") is not True:
             preview = prepare_action(
                 request.agent_user, action, resource_id, resource_type
             )
