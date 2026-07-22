@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .agent_auth import agent_service_required, agent_skill
+from .agent_actions import AgentActionError, execute_action, prepare_action
 from .agent_protocol import agent_response
 from .agent_services import (
     REQUIRED_PROFILE_FIELDS,
@@ -217,4 +218,45 @@ def career_plan(request):
         message="已生成 7 天、1 个月和 3 个月成长计划",
         data=result,
         status=201,
+    )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@agent_skill("growth_action")
+def growth_action(request):
+    data = request.agent_data
+    action = data.get("action")
+    resource_id = data.get("resourceId")
+    resource_type = data.get("resourceType", "")
+    try:
+        if not data.get("confirmed"):
+            preview = prepare_action(
+                request.agent_user, action, resource_id, resource_type
+            )
+            return agent_response(
+                ok=True,
+                message=f"请确认是否执行：{preview['title']}",
+                data=preview,
+                requires_confirmation=True,
+            )
+        result, created = execute_action(
+            request.agent_user,
+            action,
+            resource_id,
+            resource_type,
+            str(data.get("confirmationToken") or ""),
+        )
+    except AgentActionError as exc:
+        return agent_response(
+            ok=False,
+            message=exc.message,
+            error_code=exc.code,
+            status=exc.status,
+        )
+    return agent_response(
+        ok=True,
+        message="操作已完成" if created else "该操作此前已完成",
+        data=result,
+        status=201 if created else 200,
     )
