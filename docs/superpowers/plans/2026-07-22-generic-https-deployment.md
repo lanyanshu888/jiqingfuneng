@@ -176,7 +176,7 @@ git commit -m "feat: validate production deployment settings"
 - Create: `demo1/backend/tests/__init__.py`
 - Create: `demo1/backend/tests/test_entrypoint.py`
 
-- [ ] **Step 1: Write failing entrypoint behavior tests**
+- [x] **Step 1: Write failing entrypoint behavior tests**
 
 Use temporary fake `python` and `gunicorn` commands that append their arguments to a trace file. Assert the default path migrates and starts Gunicorn without seeding, and that explicit seeding without a password fails:
 
@@ -225,13 +225,13 @@ class EntrypointTests(unittest.TestCase):
         self.assertNotIn("seed_demo_data", trace)
 ```
 
-- [ ] **Step 2: Run the standalone tests and verify RED**
+- [x] **Step 2: Run the standalone tests and verify RED**
 
 Run: `cd demo1/backend && .venv/bin/python -m unittest tests.test_entrypoint -v`
 
 Expected: ERROR because `docker-entrypoint.sh` does not exist.
 
-- [ ] **Step 3: Implement the minimal POSIX entrypoint**
+- [x] **Step 3: Implement the minimal POSIX entrypoint**
 
 ```sh
 #!/bin/sh
@@ -255,13 +255,13 @@ exec gunicorn jiqing_backend.wsgi:application \
   --error-logfile -
 ```
 
-- [ ] **Step 4: Run standalone tests and verify GREEN**
+- [x] **Step 4: Run standalone tests and verify GREEN**
 
 Run: `cd demo1/backend && chmod +x docker-entrypoint.sh && .venv/bin/python -m unittest tests.test_entrypoint -v`
 
 Expected: 2 tests pass.
 
-- [ ] **Step 5: Commit the entrypoint**
+- [x] **Step 5: Commit the entrypoint**
 
 ```bash
 git add demo1/backend/docker-entrypoint.sh demo1/backend/tests
