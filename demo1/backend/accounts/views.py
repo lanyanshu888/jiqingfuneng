@@ -220,6 +220,25 @@ def enroll_activity(request, activity_id):
 @csrf_exempt
 @require_http_methods(["POST"])
 @auth_required
+def enroll_opportunity(request, opportunity_id):
+    opportunity = Opportunity.objects.filter(id=opportunity_id, status=Opportunity.STATUS_PUBLISHED).first()
+    if not opportunity:
+        return JsonResponse({"message": "岗位不存在"}, status=404)
+    if Enrollment.objects.filter(user=request.user, opportunity=opportunity).exists():
+        return JsonResponse({"message": "你已申请该岗位"}, status=409)
+    Enrollment.objects.create(user=request.user, opportunity=opportunity)
+    GrowthEvent.objects.create(
+        user=request.user,
+        event_type="opportunity_enrolled",
+        resource_type="opportunity",
+        resource_id=opportunity.id,
+    )
+    return JsonResponse({"message": "申请成功", "opportunityId": opportunity.id}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@auth_required
 def complete_course(request, course_id):
     course = Course.objects.filter(id=course_id, status=Course.STATUS_PUBLISHED).first()
     if not course:

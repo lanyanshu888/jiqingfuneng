@@ -77,6 +77,16 @@ class EnrollmentApiTests(TestCase):
         self.assertTrue(CourseProgress.objects.filter(user=self.user, course=course, completed=True).exists())
         self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="course_completed").exists())
 
+    def test_opportunity_enrollment_is_saved(self):
+        opportunity = Opportunity.objects.create(title="数字运营实习", status="published")
+        headers = {"HTTP_AUTHORIZATION": f"Token {self.token.key}"}
+
+        response = self.client.post(f"/api/opportunities/{opportunity.id}/enroll/", **headers)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(Enrollment.objects.filter(user=self.user, opportunity=opportunity).exists())
+        self.assertTrue(GrowthEvent.objects.filter(user=self.user, event_type="opportunity_enrolled").exists())
+
     def test_growth_records_return_current_users_enrollments_and_courses(self):
         course = Course.objects.create(title="简历课", status="published")
         Enrollment.objects.create(user=self.user, activity=self.activity)
