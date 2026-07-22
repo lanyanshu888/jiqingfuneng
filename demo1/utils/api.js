@@ -133,6 +133,17 @@ function toggleFavorite(resourceType, resourceId) {
   });
 }
 
+function generateAgentBindingCode() {
+  return request({
+    url: "/agent/binding-code/",
+    method: "POST"
+  });
+}
+
+function getAgentDashboard() {
+  return request({ url: "/agent/me/dashboard/" });
+}
+
 module.exports = {
   request,
   login,
@@ -154,5 +165,7 @@ module.exports = {
   getRecommendations,
   getMentors,
   consultMentor,
-  toggleFavorite
+  toggleFavorite,
+  generateAgentBindingCode,
+  getAgentDashboard
 };

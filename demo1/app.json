@@ -6,6 +6,7 @@
     "pages/opportunities/opportunities",
     "pages/growth/growth",
     "pages/mine/mine",
+    "pages/agent/agent",
     "pages/login/login",
     "pages/profile/profile",
     "pages/policy-detail/policy-detail",

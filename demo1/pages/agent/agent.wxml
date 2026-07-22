@@ -1,0 +1,76 @@
+<view class="page agent-page">
+  <view class="agent-hero">
+    <text class="eyebrow">冀青智引</text>
+    <text class="hero-title">连接小艺，让成长建议主动找到你</text>
+    <text class="hero-subtitle">画像、规划、政策与资源都来自你的真实成长档案</text>
+  </view>
+
+  <view wx:if="{{!loggedIn}}" class="card login-card">
+    <text class="card-title">登录后连接小艺</text>
+    <text class="muted">绑定只使用一次性验证码，不会向小艺提供你的密码。</text>
+    <button class="primary-btn" bindtap="goLogin">立即登录</button>
+  </view>
+
+  <block wx:else>
+    <view class="section">
+      <text class="section-title">连接小艺</text>
+      <view class="card binding-card">
+        <text class="step-text">在小艺中打开“冀青智引”，对它说“绑定账号”，再输入下方一次性绑定码。</text>
+        <view wx:if="{{bindingCode}}" class="code-box">
+          <text class="code">{{bindingCode}}</text>
+          <text class="countdown">{{remainingText}}</text>
+          <button class="secondary-btn" bindtap="copyBindingCode">复制绑定码</button>
+        </view>
+        <button wx:else class="primary-btn" loading="{{generating}}" bindtap="generateBindingCode">生成一次性绑定码</button>
+        <text class="privacy-note">一次性绑定码仅 10 分钟有效，使用后立即失效。</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">今日建议</text>
+      <view wx:if="{{loading}}" class="card state-card">正在生成今日建议…</view>
+      <view wx:elif="{{error}}" class="card state-card error-text">{{error}}</view>
+      <view wx:elif="{{!suggestions.length}}" class="card state-card">完成画像或生成计划后，这里会出现专属建议。</view>
+      <view wx:else class="card suggestion-card" wx:for="{{suggestions}}" wx:key="suggestionId">
+        <view class="suggestion-head">
+          <text class="priority {{item.priority}}">{{item.priority === "urgent" ? "优先" : "建议"}}</text>
+          <text class="card-title">{{item.title}}</text>
+        </view>
+        <text class="suggestion-content">{{item.content}}</text>
+        <text class="muted">推荐原因：{{item.reason}}</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">我的成长计划</text>
+      <view wx:if="{{plan}}" class="card plan-card">
+        <text class="card-title">{{plan.goal}}</text>
+        <view class="stage-grid">
+          <view class="stage-item">
+            <text class="stage-label">7 天</text>
+            <text>{{plan.stageProgress.seven_days.completed}}/{{plan.stageProgress.seven_days.total}}</text>
+          </view>
+          <view class="stage-item">
+            <text class="stage-label">1 个月</text>
+            <text>{{plan.stageProgress.one_month.completed}}/{{plan.stageProgress.one_month.total}}</text>
+          </view>
+          <view class="stage-item">
+            <text class="stage-label">3 个月</text>
+            <text>{{plan.stageProgress.three_months.completed}}/{{plan.stageProgress.three_months.total}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="card state-card">
+        <text>还没有成长计划，先在小艺中说出你的目标。</text>
+        <button class="secondary-btn" bindtap="goProfile">完善画像</button>
+      </view>
+    </view>
+
+    <view class="section card guide-card">
+      <text class="card-title">三步开始使用</text>
+      <text>1. 生成一次性绑定码</text>
+      <text>2. 在小艺“冀青智引”中完成绑定</text>
+      <text>3. 说“帮我规划未来三个月”</text>
+    </view>
+  </block>
+</view>
