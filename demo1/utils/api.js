@@ -113,6 +113,18 @@ function getRecommendations() {
   return request({ url: "/recommendations/" });
 }
 
+function getMentors() {
+  return request({ url: "/mentors/" });
+}
+
+function consultMentor(mentorId, consultation) {
+  return request({
+    url: `/mentors/${mentorId}/consult/`,
+    method: "POST",
+    data: consultation
+  });
+}
+
 module.exports = {
   request,
   login,
@@ -131,5 +143,7 @@ module.exports = {
   getCourse,
   getActivities,
   getActivity,
-  getRecommendations
+  getRecommendations,
+  getMentors,
+  consultMentor
 };

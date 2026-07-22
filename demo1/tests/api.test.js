@@ -80,3 +80,13 @@ test("recommendations call the authenticated recommendation endpoint", async () 
 
   assert.equal(lastRequest.url, "https://example.test/api/recommendations/");
 });
+
+test("mentor methods load mentors and submit a consultation", async () => {
+  await api.getMentors();
+  assert.equal(lastRequest.url, "https://example.test/api/mentors/");
+
+  await api.consultMentor(3, { question: "如何准备面试？" });
+  assert.equal(lastRequest.url, "https://example.test/api/mentors/3/consult/");
+  assert.equal(lastRequest.method, "POST");
+  assert.deepEqual(lastRequest.data, { question: "如何准备面试？" });
+});
