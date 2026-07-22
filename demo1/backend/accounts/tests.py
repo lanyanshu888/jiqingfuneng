@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.core.management import call_command
 from django.test import TestCase
 
-from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy, YouthProfile
+from .models import Activity, AuthToken, Course, CourseProgress, Enrollment, Favorite, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy, YouthProfile
 
 
 class ApiAuthenticationTests(TestCase):
@@ -123,6 +123,24 @@ class AdminRegistrationTests(TestCase):
     def test_growth_resources_are_registered_in_django_admin(self):
         for model in (Policy, Opportunity, Course, Activity, Mentor, Enrollment, CourseProgress, MentorConsultation):
             self.assertTrue(admin.site.is_registered(model), model.__name__)
+
+
+class FavoriteApiTests(TestCase):
+    def test_favorite_endpoint_toggles_and_growth_records_include_favorite(self):
+        user = User.objects.create_user(username="favorite", password="secret123")
+        token = AuthToken.create_for_user(user)
+        policy = Policy.objects.create(title="就业政策", status="published")
+        headers = {"HTTP_AUTHORIZATION": f"Token {token.key}"}
+        payload = f'{{"resourceType":"policy","resourceId":{policy.id}}}'
+
+        added = self.client.post("/api/favorites/toggle/", data=payload, content_type="application/json", **headers)
+        records = self.client.get("/api/me/growth/", **headers)
+        removed = self.client.post("/api/favorites/toggle/", data=payload, content_type="application/json", **headers)
+
+        self.assertEqual(added.json()["favorited"], True)
+        self.assertEqual(records.json()["favorites"][0]["title"], "就业政策")
+        self.assertEqual(removed.json()["favorited"], False)
+        self.assertFalse(Favorite.objects.filter(user=user).exists())
 
 
 class EnrollmentApiTests(TestCase):

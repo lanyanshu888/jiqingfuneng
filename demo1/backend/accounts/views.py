@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 from .models import AuthToken, YouthProfile
 from django.utils import timezone
 
-from .models import Activity, Course, CourseProgress, Enrollment, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy
+from .models import Activity, Course, CourseProgress, Enrollment, Favorite, GrowthEvent, Mentor, MentorConsultation, Opportunity, Policy
 
 
 def json_body(request):
@@ -285,6 +285,43 @@ def consult_mentor(request, mentor_id):
 @csrf_exempt
 @require_http_methods(["POST"])
 @auth_required
+def toggle_favorite(request):
+    data = json_body(request)
+    resource_type = data.get("resourceType")
+    resource_id = data.get("resourceId")
+    model_map = {
+        "policy": Policy,
+        "opportunity": Opportunity,
+        "course": Course,
+        "activity": Activity,
+    }
+    model = model_map.get(resource_type)
+    if not model or not str(resource_id or "").isdigit():
+        return JsonResponse({"message": "收藏资源参数无效"}, status=400)
+    resource = model.objects.filter(id=int(resource_id), status=model.STATUS_PUBLISHED).first()
+    if not resource:
+        return JsonResponse({"message": "资源不存在"}, status=404)
+    favorite = Favorite.objects.filter(
+        user=request.user,
+        resource_type=resource_type,
+        resource_id=resource.id,
+    ).first()
+    if favorite:
+        favorite.delete()
+        return JsonResponse({"favorited": False})
+    Favorite.objects.create(user=request.user, resource_type=resource_type, resource_id=resource.id)
+    GrowthEvent.objects.create(
+        user=request.user,
+        event_type="resource_favorited",
+        resource_type=resource_type,
+        resource_id=resource.id,
+    )
+    return JsonResponse({"favorited": True})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@auth_required
 def enroll_activity(request, activity_id):
     activity = Activity.objects.filter(id=activity_id, status=Activity.STATUS_PUBLISHED).first()
     if not activity:
@@ -353,6 +390,15 @@ def growth_records(request):
     opportunity_enrollments = Enrollment.objects.filter(user=request.user, opportunity__isnull=False).select_related("opportunity").order_by("-created_at")
     completed_courses = CourseProgress.objects.filter(user=request.user, completed=True).select_related("course").order_by("-completed_at")
     consultations = MentorConsultation.objects.filter(user=request.user).select_related("mentor").order_by("-created_at")
+    favorites = []
+    favorite_models = {"policy": Policy, "opportunity": Opportunity, "course": Course, "activity": Activity}
+    for favorite in Favorite.objects.filter(user=request.user).order_by("-created_at"):
+        model = favorite_models.get(favorite.resource_type)
+        resource = model.objects.filter(id=favorite.resource_id).first() if model else None
+        if resource:
+            payload = policy_payload(resource) if favorite.resource_type == "policy" else resource_payload(resource)
+            payload["resourceType"] = favorite.resource_type
+            favorites.append(payload)
     return JsonResponse({
         "activities": [resource_payload(item.activity) for item in activity_enrollments],
         "opportunities": [resource_payload(item.opportunity) for item in opportunity_enrollments],
@@ -364,6 +410,7 @@ def growth_records(request):
             "status": item.status,
             "scheduledAt": item.scheduled_at,
         } for item in consultations],
+        "favorites": favorites,
     })
 
 
