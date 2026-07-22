@@ -1,0 +1,149 @@
+.home-hero {
+  padding-bottom: 28rpx;
+}
+
+.hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.region-pill {
+  flex: 0 0 auto;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 24rpx;
+}
+
+.search-box {
+  margin-top: 28rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.96);
+  color: #6b7280;
+  font-size: 26rpx;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 150rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  color: #111827;
+  font-size: 24rpx;
+  box-shadow: 0 8rpx 20rpx rgba(31, 41, 55, 0.04);
+}
+
+.quick-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #edf4ff;
+  color: #2f80ed;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.quick-icon.green {
+  background: #edf7f2;
+  color: #16875f;
+}
+
+.quick-icon.orange {
+  background: #fff4e7;
+  color: #e6761b;
+}
+
+.quick-icon.teal {
+  background: #e8f7f7;
+  color: #0d8f91;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+
+.recommend-card {
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  border-left: 8rpx solid #2f80ed;
+  border-radius: 16rpx;
+  background: #fff;
+}
+
+.recommend-type {
+  display: inline-flex;
+  margin-bottom: 12rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: #edf4ff;
+  color: #2f80ed;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.recommend-type.green {
+  background: #edf7f2;
+  color: #16875f;
+}
+
+.recommend-type.orange {
+  background: #fff4e7;
+  color: #e6761b;
+}
+
+.recommend-type.teal {
+  background: #e8f7f7;
+  color: #0d8f91;
+}
+
+.progress-grid,
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.progress-item,
+.stat-card {
+  min-width: 0;
+  padding: 24rpx 12rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  text-align: center;
+}
+
+.progress-item.done {
+  border: 1rpx solid #b8e5d1;
+  background: #f1fbf6;
+}
+
+.progress-num,
+.stat-value {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  word-break: break-all;
+}

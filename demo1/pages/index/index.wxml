@@ -1,0 +1,102 @@
+<view class="page index-page">
+  <view class="hero home-hero">
+    <view class="hero-top">
+      <view>
+        <text class="hero-title">冀青赋能</text>
+        <text class="hero-subtitle">让河北县域青年看见机会、链接资源、实现成长</text>
+      </view>
+      <view class="region-pill">沧州</view>
+    </view>
+    <view class="search-box">搜索政策、岗位、课程、活动</view>
+  </view>
+
+  <view class="quick-grid">
+    <button class="quick-item" bindtap="goPolicy">
+      <text class="quick-icon">策</text>
+      <text>查政策</text>
+    </button>
+    <button class="quick-item" bindtap="goOpportunity">
+      <text class="quick-icon green">岗</text>
+      <text>找岗位</text>
+    </button>
+    <button class="quick-item" bindtap="goGrowth">
+      <text class="quick-icon orange">营</text>
+      <text>报活动</text>
+    </button>
+    <button class="quick-item" bindtap="goGrowth">
+      <text class="quick-icon teal">课</text>
+      <text>学技能</text>
+    </button>
+  </view>
+
+  <view class="card profile-card">
+    <view>
+      <text class="card-title">你的成长画像：{{profile ? profile.type : "待完善"}}</text>
+      <text class="muted">{{profile ? profile.summary : "用 1 分钟填写发展意向，生成专属政策、岗位、课程和活动推荐。"}}</text>
+    </view>
+    <button class="primary-btn" bindtap="goProfile">{{profile ? "更新画像" : "立即生成我的成长路径"}}</button>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">今日推荐</text>
+      <text class="section-more">基于县域青年需求</text>
+    </view>
+    <view class="recommend-card" bindtap="goPolicyDetail">
+      <view class="recommend-type">推荐政策</view>
+      <text class="card-title">{{recommendPolicy.title}}</text>
+      <text class="muted">适合：{{recommendPolicy.target}}</text>
+    </view>
+    <view class="recommend-card" bindtap="goOpportunityDetail">
+      <view class="recommend-type green">推荐机会</view>
+      <text class="card-title">{{recommendOpportunity.title}}</text>
+      <text class="muted">{{recommendOpportunity.location}}｜{{recommendOpportunity.pay}}</text>
+    </view>
+    <view class="recommend-card" bindtap="goActivityDetail">
+      <view class="recommend-type orange">近期成长营</view>
+      <text class="card-title">{{recommendActivity.title}}</text>
+      <text class="muted">{{recommendActivity.time}}</text>
+    </view>
+    <view class="recommend-card" bindtap="goCourseDetail">
+      <view class="recommend-type teal">推荐课程</view>
+      <text class="card-title">{{recommendCourse.title}}</text>
+      <text class="muted">{{recommendCourse.duration}}｜适合{{recommendCourse.target}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">我的成长进度</text>
+    </view>
+    <view class="progress-grid">
+      <view class="progress-item {{progress.profile ? 'done' : ''}}">
+        <text class="progress-num">{{progress.profile ? "已完成" : "待完善"}}</text>
+        <text class="muted">成长画像</text>
+      </view>
+      <view class="progress-item">
+        <text class="progress-num">{{progress.policyViews}}</text>
+        <text class="muted">政策查看</text>
+      </view>
+      <view class="progress-item">
+        <text class="progress-num">{{progress.activityJoined}}</text>
+        <text class="muted">活动报名</text>
+      </view>
+      <view class="progress-item">
+        <text class="progress-num">{{progress.courseFinished}}</text>
+        <text class="muted">完成课程</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section stats-section">
+    <view class="section-head">
+      <text class="section-title">青年服务数据</text>
+    </view>
+    <view class="stats-grid">
+      <view class="stat-card" wx:for="{{stats}}" wx:key="label">
+        <text class="stat-value">{{item.value}}</text>
+        <text class="muted">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+</view>

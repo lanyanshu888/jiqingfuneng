@@ -1,0 +1,58 @@
+<view class="page">
+  <view class="mine-head">
+    <view class="avatar">{{avatarText}}</view>
+    <view class="mine-info">
+      <text class="mine-name">{{profile ? profile.nickname : "张同学"}}</text>
+      <text class="muted">{{loginText}}｜{{profile ? profile.type : "待完善成长画像"}}</text>
+    </view>
+    <button wx:if="{{user}}" class="secondary-btn" bindtap="goProfile">{{profile ? "更新" : "完善"}}</button>
+    <button wx:else class="secondary-btn" bindtap="goLogin">登录</button>
+  </view>
+
+  <view class="points-card">
+    <view>
+      <text class="points">{{points}}</text>
+      <text class="muted">成长积分</text>
+    </view>
+    <view class="points-rules">
+      <text>完善画像 +10</text>
+      <text>查看政策 +5</text>
+      <text>报名活动 +20</text>
+      <text>完成课程 +20</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="grid-2">
+      <view class="summary-card">
+        <text class="summary-num">{{progress.policyViews}}</text>
+        <text class="muted">政策浏览</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-num">{{progress.activityJoined}}</text>
+        <text class="muted">活动报名</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-num">{{progress.courseFinished}}</text>
+        <text class="muted">完成课程</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-num">{{tagCount}}</text>
+        <text class="muted">画像标签</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="card menu-card" wx:for="{{menus}}" wx:key="title" data-index="{{index}}" bindtap="handleMenu">
+      <text>{{item.title}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="service-card">
+    <text class="card-title">意见反馈｜联系客服</text>
+    <text class="muted">服务电话：0317-1234567</text>
+    <button wx:if="{{user}}" class="ghost-logout" bindtap="logout">退出登录</button>
+  </view>
+</view>

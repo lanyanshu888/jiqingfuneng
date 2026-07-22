@@ -1,0 +1,59 @@
+.admin-hero {
+  background: linear-gradient(135deg, #111827 0%, #2f80ed 100%);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.admin-stat {
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  text-align: center;
+}
+
+.admin-value {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #111827;
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.bar-line {
+  display: grid;
+  grid-template-columns: 100rpx 1fr 90rpx;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 20rpx;
+  color: #374151;
+  font-size: 24rpx;
+}
+
+.bar-line > view {
+  height: 14rpx;
+  overflow: hidden;
+  border-radius: 999rpx;
+  background: #eef2f7;
+}
+
+.bar-line > view > view {
+  height: 100%;
+  border-radius: 999rpx;
+  background: #21a67a;
+}
+
+.publish-btn {
+  width: 100%;
+}
+
+.audit-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}

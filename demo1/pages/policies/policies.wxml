@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="hero compact-hero">
+    <text class="hero-title">政策一键查</text>
+    <text class="hero-subtitle">把复杂政策翻译成青年看得懂、能申请的服务清单</text>
+  </view>
+
+  <view class="filter-card">
+    <view class="filter-line">
+      <text class="filter-label">选择地区</text>
+      <text class="filter-value">河北省 > 沧州市 > 黄骅市</text>
+    </view>
+    <view class="segmented">
+      <view wx:for="{{categories}}" wx:key="*this" data-category="{{item}}" bindtap="selectCategory" class="segment {{current === item ? 'active' : ''}}">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="policy-card card" wx:for="{{policies}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="policy-head">
+        <text class="card-title">{{item.title}}</text>
+        <text class="tag tag-blue">{{item.category}}</text>
+      </view>
+      <text class="muted">适合：{{item.target}}</text>
+      <view class="support-box">支持：{{item.support}}</view>
+      <button class="secondary-btn">查看申请流程</button>
+    </view>
+  </view>
+</view>

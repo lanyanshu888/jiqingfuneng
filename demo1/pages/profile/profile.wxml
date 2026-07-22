@@ -1,0 +1,82 @@
+<view class="page">
+  <view class="hero compact-hero">
+    <text class="hero-title">我的成长画像</text>
+    <text class="hero-subtitle">填写基础信息、发展意向和能力情况，生成专属成长路径</text>
+  </view>
+
+  <view wx:if="{{profile}}" class="card result-card">
+    <text class="card-title">用户类型：{{profile.type}}</text>
+    <text class="muted">所在地区：{{profile.region}}</text>
+    <text class="muted">当前需求：{{profile.summary}}</text>
+    <view class="tag-row">
+      <text class="tag tag-blue" wx:for="{{profile.tags}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="path-box">
+      <text>推荐路径</text>
+      <text>第一步：完善简历</text>
+      <text>第二步：查看本地岗位</text>
+      <text>第三步：报名就业成长营</text>
+      <text>第四步：预约导师咨询</text>
+    </view>
+  </view>
+
+  <form bindsubmit="submitProfile" class="form-card">
+    <view class="field">
+      <text class="label">昵称</text>
+      <input class="input" name="nickname" placeholder="例如：张同学" value="{{profile.nickname}}" />
+    </view>
+    <view class="grid-2">
+      <view class="field">
+        <text class="label">年龄</text>
+        <input class="input" name="age" type="number" placeholder="20" value="{{profile.age}}" />
+      </view>
+      <view class="field">
+        <text class="label">专业</text>
+        <input class="input" name="major" placeholder="电子商务" value="{{profile.major}}" />
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">所在城市/县区</text>
+      <picker mode="selector" range="{{regionOptions}}" value="{{regionIndex}}" bindchange="bindRegion">
+        <view class="input picker-text">{{regionOptions[regionIndex]}}</view>
+      </picker>
+    </view>
+    <view class="grid-2">
+      <view class="field">
+        <text class="label">学历</text>
+        <picker mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="bindEducation">
+          <view class="input picker-text">{{educationOptions[educationIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">当前状态</text>
+        <picker mode="selector" range="{{statusOptions}}" value="{{statusIndex}}" bindchange="bindStatus">
+          <view class="input picker-text">{{statusOptions[statusIndex]}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">发展意向</text>
+      <checkbox-group name="intents" class="check-grid">
+        <label wx:for="{{intentOptions}}" wx:key="*this" class="check-item">
+          <checkbox value="{{item}}" color="#2F80ED" />
+          <text>{{item}}</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <view class="field">
+      <text class="label">能力情况</text>
+      <checkbox-group name="abilities" class="check-grid">
+        <label wx:for="{{abilityOptions}}" wx:key="*this" class="check-item">
+          <checkbox value="{{item}}" color="#21A67A" />
+          <text>{{item}}</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <button formType="submit" class="primary-btn submit-btn">生成我的成长路径</button>
+  </form>
+</view>

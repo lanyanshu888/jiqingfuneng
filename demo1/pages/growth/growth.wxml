@@ -1,0 +1,54 @@
+<view class="page">
+  <view class="hero compact-hero growth-hero">
+    <text class="hero-title">成长课堂</text>
+    <text class="hero-subtitle">课程、成长营和导师咨询一起补齐能力短板</text>
+  </view>
+
+  <view class="card profile-tip">
+    <text class="card-title">推荐给你：{{profile ? profile.type : "就业准备型青年"}}</text>
+    <text class="muted">系统会根据成长画像优先推荐政策申请、简历、面试、实践和创业课程。</text>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">成长课程</text>
+    </view>
+    <view class="card course-card" wx:for="{{courses}}" wx:key="id" data-id="{{item.id}}" bindtap="goCourse">
+      <view class="course-main">
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.duration}}｜适合{{item.target}}</text>
+        <view class="progress-bar">
+          <view class="progress-inner" style="width: {{item.progress}}%;"></view>
+        </view>
+      </view>
+      <button class="secondary-btn">开始学习</button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">县域青年成长营</text>
+    </view>
+    <view class="card activity-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}" bindtap="goActivity">
+      <text class="card-title">{{item.title}}</text>
+      <text class="muted">{{item.time}}</text>
+      <text class="muted">{{item.place}}</text>
+      <view class="quota">剩余名额：{{item.capacity - item.joined}} / {{item.capacity}}</view>
+      <button class="primary-btn">立即报名</button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">导师咨询</text>
+      <text class="section-more" bindtap="goMentor">查看全部</text>
+    </view>
+    <view class="mentor-strip">
+      <view class="mentor-mini" wx:for="{{mentors}}" wx:key="id">
+        <text class="mentor-name">{{item.name}}</text>
+        <text class="muted">{{item.role}}</text>
+        <text class="mentor-time">{{item.available}}</text>
+      </view>
+    </view>
+  </view>
+</view>

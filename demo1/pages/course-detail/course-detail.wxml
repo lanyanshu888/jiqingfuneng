@@ -1,0 +1,34 @@
+<view class="page" wx:if="{{course}}">
+  <view class="detail-head">
+    <text class="detail-title">{{course.title}}</text>
+    <view class="tag-row">
+      <text class="tag tag-blue">{{course.category}}</text>
+      <text class="tag">{{course.duration}}</text>
+      <text class="tag tag-orange">{{course.certificate ? "可获证明" : "资料课"}}</text>
+    </view>
+  </view>
+
+  <view class="video-box">
+    <text>课程播放区</text>
+    <text class="muted">MVP 阶段可接入图文、短视频链接、PPT 或直播回放</text>
+  </view>
+
+  <view class="card">
+    <text class="label">适合人群</text>
+    <text class="detail-text">{{course.target}}</text>
+  </view>
+  <view class="card">
+    <text class="label">主讲人</text>
+    <text class="detail-text">{{course.teacher}}</text>
+  </view>
+  <view class="card">
+    <text class="label">学习目标</text>
+    <text class="detail-text">{{course.goal}}</text>
+  </view>
+  <view class="card">
+    <text class="label">课程资料</text>
+    <text class="detail-text">{{course.materials}}</text>
+  </view>
+
+  <button class="primary-btn fixed-action" bindtap="finishCourse">{{finished ? "已完成学习" : "标记为已学完"}}</button>
+</view>

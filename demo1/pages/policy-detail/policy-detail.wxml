@@ -1,0 +1,43 @@
+<view class="page" wx:if="{{policy}}">
+  <view class="detail-head">
+    <text class="detail-title">{{policy.title}}</text>
+    <view class="tag-row">
+      <text class="tag tag-blue">{{policy.category}}</text>
+      <text class="tag">{{policy.region}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="label">适用对象</text>
+    <text class="detail-text">{{policy.target}}</text>
+  </view>
+  <view class="card">
+    <text class="label">支持内容</text>
+    <text class="detail-text">{{policy.support}}</text>
+  </view>
+  <view class="card">
+    <text class="label">申请条件</text>
+    <view class="list-line" wx:for="{{policy.conditions}}" wx:key="*this">{{index + 1}}. {{item}}</view>
+  </view>
+  <view class="card">
+    <text class="label">申请材料</text>
+    <view class="list-line" wx:for="{{policy.materials}}" wx:key="*this">{{index + 1}}. {{item}}</view>
+  </view>
+  <view class="card">
+    <text class="label">办理流程</text>
+    <view class="flow">
+      <view class="flow-step" wx:for="{{policy.process}}" wx:key="*this">
+        <text class="flow-num">{{index + 1}}</text>
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="card">
+    <text class="label">办理地点/入口</text>
+    <text class="detail-text">{{policy.location}}</text>
+    <text class="muted">更新时间：{{policy.updatedAt}}</text>
+    <text class="muted">政策来源：{{policy.source}}</text>
+  </view>
+
+  <button class="primary-btn fixed-action" bindtap="callService">咨询申请流程</button>
+</view>

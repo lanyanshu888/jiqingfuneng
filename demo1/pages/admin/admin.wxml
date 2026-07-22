@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="hero compact-hero admin-hero">
+    <text class="hero-title">管理后台</text>
+    <text class="hero-subtitle">内容审核、活动报名、课程上传和服务成效统计的运营入口</text>
+  </view>
+
+  <view class="section">
+    <view class="segmented">
+      <view wx:for="{{tabs}}" wx:key="*this" data-tab="{{item}}" bindtap="selectTab" class="segment {{tab === item ? 'active' : ''}}">{{item}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{tab === '数据看板'}}" class="section">
+    <view class="admin-grid">
+      <view class="admin-stat" wx:for="{{stats}}" wx:key="label">
+        <text class="admin-value">{{item.value}}</text>
+        <text class="muted">{{item.label}}</text>
+      </view>
+      <view class="admin-stat">
+        <text class="admin-value">78%</text>
+        <text class="muted">服务转化率</text>
+      </view>
+      <view class="admin-stat">
+        <text class="admin-value">4.8</text>
+        <text class="muted">满意度评分</text>
+      </view>
+    </view>
+    <view class="card">
+      <text class="card-title">地区用户分布</text>
+      <view class="bar-line"><text>沧州</text><view><view style="width: 78%;"></view></view><text>1286</text></view>
+      <view class="bar-line"><text>邯郸</text><view><view style="width: 54%;"></view></view><text>892</text></view>
+      <view class="bar-line"><text>承德</text><view><view style="width: 42%;"></view></view><text>694</text></view>
+      <view class="bar-line"><text>秦皇岛</text><view><view style="width: 35%;"></view></view><text>578</text></view>
+    </view>
+  </view>
+
+  <view wx:elif="{{tab === '内容发布'}}" class="section">
+    <form bindsubmit="publish" class="card">
+      <view class="field">
+        <text class="label">发布标题</text>
+        <input class="input" name="title" placeholder="例如：大学生就业见习补贴" />
+      </view>
+      <view class="field">
+        <text class="label">内容类型</text>
+        <input class="input" name="type" placeholder="政策 / 岗位 / 活动 / 课程" />
+      </view>
+      <view class="field">
+        <text class="label">内容摘要</text>
+        <textarea class="textarea" name="summary" placeholder="填写青年能看懂的服务说明、申请条件或报名要求" />
+      </view>
+      <button formType="submit" class="primary-btn publish-btn">提交审核</button>
+    </form>
+  </view>
+
+  <view wx:else class="section">
+    <view class="card audit-card" wx:for="{{auditItems}}" wx:key="title">
+      <view>
+        <text class="card-title">{{item.title}}</text>
+        <text class="muted">{{item.type}}｜{{item.status}}</text>
+      </view>
+      <button class="secondary-btn" data-index="{{index}}" bindtap="approve">通过</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,29 @@
+<view class="launch-page">
+  <view class="brand-block">
+    <view class="brand-mark">冀</view>
+    <text class="launch-title">冀青赋能</text>
+    <text class="launch-subtitle">河北县域青年成长与就业服务平台</text>
+    <text class="launch-line">政策服务 + 就业服务 + 成长培训 + 线下活动 + 数据跟踪</text>
+  </view>
+
+  <view class="launch-panel">
+    <view class="panel-row">
+      <text>政策一键查</text>
+      <text>机会大厅</text>
+    </view>
+    <view class="panel-row">
+      <text>成长课堂</text>
+      <text>导师咨询</text>
+    </view>
+    <view class="panel-row">
+      <text>成长画像</text>
+      <text>后台数据</text>
+    </view>
+  </view>
+
+  <view class="launch-actions">
+    <button class="primary-btn" bindtap="enterApp">进入小程序</button>
+    <button class="secondary-btn" bindtap="goLogin">用户登录</button>
+    <button class="secondary-btn" bindtap="goProfile">生成成长画像</button>
+  </view>
+</view>

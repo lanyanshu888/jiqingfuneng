@@ -1,0 +1,51 @@
+.compact-hero .hero-title {
+  font-size: 40rpx;
+}
+
+.filter-card {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: #fff;
+}
+
+.filter-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 22rpx;
+}
+
+.filter-label {
+  color: #6b7280;
+  font-size: 24rpx;
+}
+
+.filter-value {
+  color: #111827;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.policy-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.policy-head .tag {
+  flex: 0 0 auto;
+  margin-top: 4rpx;
+}
+
+.support-box {
+  margin: 18rpx 0;
+  padding: 18rpx;
+  border-radius: 12rpx;
+  background: #f6faff;
+  color: #374151;
+  font-size: 25rpx;
+  line-height: 1.55;
+}

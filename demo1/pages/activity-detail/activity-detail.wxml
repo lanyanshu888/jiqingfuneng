@@ -1,0 +1,36 @@
+<view class="page" wx:if="{{activity}}">
+  <view class="activity-hero">
+    <text class="detail-title">{{activity.title}}</text>
+    <view class="tag-row">
+      <text class="tag tag-orange" wx:for="{{activity.tags}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="label">活动时间</text>
+    <text class="detail-text">{{activity.time}}</text>
+  </view>
+  <view class="card">
+    <text class="label">活动地点</text>
+    <text class="detail-text">{{activity.place}}</text>
+  </view>
+  <view class="card">
+    <text class="label">主办单位</text>
+    <text class="detail-text">{{activity.host}}</text>
+  </view>
+  <view class="card">
+    <text class="label">适合对象</text>
+    <text class="detail-text">{{activity.target}}</text>
+  </view>
+  <view class="card">
+    <text class="label">活动流程</text>
+    <view class="list-line" wx:for="{{activity.agenda}}" wx:key="*this">{{item}}</view>
+  </view>
+  <view class="card">
+    <text class="label">报名人数</text>
+    <text class="detail-text">已报名 {{activity.joined}} 人，剩余 {{activity.capacity - activity.joined}} 个名额</text>
+    <view class="fake-qr">签到二维码</view>
+  </view>
+
+  <button class="primary-btn fixed-action" bindtap="joinActivity">{{joined ? "已报名，等待通知" : "立即报名"}}</button>
+</view>

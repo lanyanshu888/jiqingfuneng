@@ -1,0 +1,22 @@
+.login-hero {
+  background: linear-gradient(135deg, #2f80ed 0%, #21a67a 100%);
+}
+
+.login-card {
+  margin-top: 28rpx;
+  padding: 28rpx;
+  border-radius: 18rpx;
+  background: #fff;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 10rpx;
+}
+
+.ghost-switch {
+  width: 100%;
+  margin-top: 22rpx;
+  color: #2f80ed;
+  font-size: 26rpx;
+}

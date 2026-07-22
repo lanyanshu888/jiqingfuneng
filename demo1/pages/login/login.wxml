@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="hero compact-hero login-hero">
+    <text class="hero-title">{{mode === "login" ? "用户登录" : "用户注册"}}</text>
+    <text class="hero-subtitle">登录后可同步成长画像、报名记录和课程学习进度</text>
+  </view>
+
+  <form class="login-card" bindsubmit="submit">
+    <view class="field">
+      <text class="label">账号</text>
+      <input class="input" name="username" placeholder="请输入手机号或用户名" />
+    </view>
+    <view class="field" wx:if="{{mode === 'register'}}">
+      <text class="label">昵称</text>
+      <input class="input" name="nickname" placeholder="例如：张同学" />
+    </view>
+    <view class="field">
+      <text class="label">密码</text>
+      <input class="input" name="password" password placeholder="不少于 6 位" />
+    </view>
+
+    <button class="primary-btn login-btn" formType="submit" loading="{{loading}}">
+      {{mode === "login" ? "登录" : "注册并登录"}}
+    </button>
+    <button class="ghost-switch" type="button" bindtap="switchMode">
+      {{mode === "login" ? "还没有账号？去注册" : "已有账号？去登录"}}
+    </button>
+  </form>
+</view>

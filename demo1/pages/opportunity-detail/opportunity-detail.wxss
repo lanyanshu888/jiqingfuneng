@@ -1,0 +1,5 @@
+@import "../policy-detail/policy-detail.wxss";
+
+.detail-grid .card {
+  margin-bottom: 0;
+}

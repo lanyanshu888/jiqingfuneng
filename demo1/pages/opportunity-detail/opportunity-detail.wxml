@@ -1,0 +1,32 @@
+<view class="page" wx:if="{{opportunity}}">
+  <view class="detail-head">
+    <text class="detail-title">{{opportunity.title}}</text>
+    <text class="muted">{{opportunity.unit}}</text>
+    <view class="tag-row">
+      <text class="tag tag-orange">{{opportunity.type}}</text>
+      <text class="tag" wx:for="{{opportunity.tags}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="label">机会说明</text>
+    <text class="detail-text">{{opportunity.detail}}</text>
+  </view>
+
+  <view class="grid-2 detail-grid">
+    <view class="card"><text class="label">地点</text><text>{{opportunity.location}}</text></view>
+    <view class="card"><text class="label">薪资/补贴</text><text>{{opportunity.pay}}</text></view>
+    <view class="card"><text class="label">学历要求</text><text>{{opportunity.education}}</text></view>
+    <view class="card"><text class="label">专业要求</text><text>{{opportunity.major}}</text></view>
+    <view class="card"><text class="label">周期</text><text>{{opportunity.duration}}</text></view>
+    <view class="card"><text class="label">截止时间</text><text>{{opportunity.deadline}}</text></view>
+  </view>
+
+  <view class="card">
+    <text class="label">报名信息</text>
+    <text class="detail-text">已报名 {{opportunity.applicants}} 人｜{{opportunity.proof ? "可提供证明" : "暂无证明"}}｜{{opportunity.online ? "支持线上报名" : "需线下联系"}}</text>
+    <text class="muted">联系方式：{{opportunity.contact}}</text>
+  </view>
+
+  <button class="primary-btn fixed-action" bindtap="join">{{joined ? "已报名" : "立即报名"}}</button>
+</view>

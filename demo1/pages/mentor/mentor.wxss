@@ -1,0 +1,34 @@
+.mentor-card {
+  display: flex;
+  gap: 18rpx;
+}
+
+.mentor-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78rpx;
+  height: 78rpx;
+  border-radius: 50%;
+  background: #edf4ff;
+  color: #2f80ed;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.mentor-content {
+  flex: 1;
+}
+
+.mentor-time {
+  display: block;
+  margin: 16rpx 0;
+  color: #16875f;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 18rpx;
+}

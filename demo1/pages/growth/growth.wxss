@@ -1,0 +1,75 @@
+.growth-hero {
+  background: linear-gradient(135deg, #21a67a 0%, #f2994a 100%);
+}
+
+.profile-tip {
+  margin-top: 24rpx;
+}
+
+.course-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.course-main {
+  flex: 1;
+}
+
+.progress-bar {
+  height: 12rpx;
+  margin-top: 18rpx;
+  overflow: hidden;
+  border-radius: 999rpx;
+  background: #eef2f7;
+}
+
+.progress-inner {
+  height: 100%;
+  border-radius: 999rpx;
+  background: #21a67a;
+}
+
+.activity-card .primary-btn {
+  width: 100%;
+  margin-top: 18rpx;
+}
+
+.quota {
+  display: inline-flex;
+  margin-top: 16rpx;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  background: #fff4e7;
+  color: #e6761b;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.mentor-strip {
+  display: flex;
+  gap: 16rpx;
+  overflow-x: auto;
+}
+
+.mentor-mini {
+  flex: 0 0 250rpx;
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: #fff;
+}
+
+.mentor-name {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.mentor-time {
+  display: block;
+  margin-top: 14rpx;
+  color: #2f80ed;
+  font-size: 24rpx;
+}

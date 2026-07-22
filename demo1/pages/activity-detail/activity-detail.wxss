@@ -1,0 +1,27 @@
+@import "../policy-detail/policy-detail.wxss";
+
+.activity-hero {
+  padding: 32rpx 26rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #2f80ed 0%, #f2994a 100%);
+  color: #fff;
+}
+
+.activity-hero .detail-title {
+  color: #fff;
+}
+
+.fake-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 190rpx;
+  height: 190rpx;
+  margin-top: 22rpx;
+  border: 8rpx solid #e5edf6;
+  border-radius: 12rpx;
+  background: repeating-linear-gradient(45deg, #111827 0, #111827 8rpx, #fff 8rpx, #fff 16rpx);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 800;
+}

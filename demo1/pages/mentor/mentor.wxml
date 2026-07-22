@@ -1,0 +1,24 @@
+<view class="page">
+  <view class="hero compact-hero">
+    <text class="hero-title">导师咨询</text>
+    <text class="hero-subtitle">轻量预约、留言提问、每周固定答疑，补足信息平台的陪伴感</text>
+  </view>
+
+  <view class="section">
+    <view class="card mentor-card" wx:for="{{mentors}}" wx:key="id">
+      <view class="mentor-avatar">{{item.initial}}</view>
+      <view class="mentor-content">
+        <text class="card-title">{{item.name}}｜{{item.role}}</text>
+        <text class="muted">擅长：{{item.goodAt}}</text>
+        <text class="mentor-time">可预约：{{item.available}}</text>
+        <button class="secondary-btn" data-index="{{index}}" bindtap="reserve">预约咨询</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="card-title">留言提问</text>
+    <textarea class="textarea" value="{{question}}" bindinput="inputQuestion" placeholder="写下你想咨询的就业、政策、创业或实践问题" />
+    <button class="primary-btn submit-btn" bindtap="submitQuestion">提交问题</button>
+  </view>
+</view>

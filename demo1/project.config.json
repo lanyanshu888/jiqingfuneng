@@ -1,0 +1,48 @@
+{
+  "description": "冀青赋能 - 河北县域青年成长与就业服务平台",
+  "setting": {
+    "bundle": false,
+    "userConfirmedBundleSwitch": false,
+    "urlCheck": false,
+    "scopeDataCheck": false,
+    "coverView": true,
+    "es6": true,
+    "postcss": true,
+    "compileHotReLoad": false,
+    "lazyloadPlaceholderEnable": false,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "autoAudits": false,
+    "newFeature": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "enhance": false,
+    "showShadowRootInWxmlPanel": false,
+    "packNpmRelationList": [],
+    "ignoreUploadUnusedFiles": true
+  },
+  "compileType": "miniprogram",
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "libVersion": "3.4.10",
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "backend",
+        "type": "folder"
+      },
+      {
+        "value": ".venv1",
+        "type": "folder"
+      }
+    ],
+    "include": []
+  },
+  "appid": "wxd9f7e281a8b011c0"
+}
