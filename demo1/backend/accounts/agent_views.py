@@ -13,6 +13,7 @@ from .agent_actions import AgentActionError, execute_action, prepare_action
 from .agent_protocol import agent_response
 from .agent_services import (
     REQUIRED_PROFILE_FIELDS,
+    build_daily_suggestions,
     create_career_plan,
     match_resources,
     profile_context_data,
@@ -260,3 +261,21 @@ def growth_action(request):
         data=result,
         status=201 if created else 200,
     )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@agent_skill("daily_suggestion")
+def daily_suggestion(request):
+    result = build_daily_suggestions(request.agent_user)
+    return agent_response(
+        ok=True,
+        message=f"今天为你准备了 {len(result['suggestions'])} 条建议",
+        data=result,
+    )
+
+
+@require_http_methods(["GET"])
+@auth_required
+def agent_dashboard(request):
+    return JsonResponse(build_daily_suggestions(request.user))

@@ -4,7 +4,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 from .models import Activity, Course, GrowthPlan, GrowthTask, Mentor, Opportunity, Policy
-from .models import GrowthEvent, YouthProfile
+from .models import GrowthEvent, ProactiveSuggestion, YouthProfile
 
 
 PROFILE_FIELDS = (
@@ -317,3 +317,96 @@ def create_career_plan(user, goal):
             for task in tasks
         ],
     }
+
+
+def _plan_summary(plan):
+    if not plan:
+        return None
+    counts = {}
+    for stage, _label in GrowthTask.STAGE_CHOICES:
+        stage_tasks = plan.tasks.filter(stage=stage)
+        counts[stage] = {
+            "total": stage_tasks.count(),
+            "completed": stage_tasks.filter(status=GrowthTask.STATUS_COMPLETED).count(),
+        }
+    return {
+        "planId": plan.id,
+        "goal": plan.goal,
+        "startsOn": plan.starts_on.isoformat(),
+        "endsOn": plan.ends_on.isoformat() if plan.ends_on else None,
+        "stageProgress": counts,
+    }
+
+
+def build_daily_suggestions(user, now=None):
+    now = now or timezone.now()
+    plan = GrowthPlan.objects.filter(
+        user=user, status=GrowthPlan.STATUS_ACTIVE
+    ).order_by("-created_at").first()
+    candidates = []
+    if plan:
+        tasks = plan.tasks.filter(
+            status=GrowthTask.STATUS_PENDING,
+            due_at__isnull=False,
+            due_at__lte=now + timedelta(hours=24),
+        ).order_by("due_at", "sequence")
+        for task in tasks:
+            overdue = task.due_at < now
+            candidates.append({
+                "suggestionType": "overdue_task" if overdue else "due_task",
+                "priority": "urgent" if overdue else "high",
+                "title": "逾期成长任务" if overdue else "即将到期的成长任务",
+                "content": f"请完成：{task.title}",
+                "reason": "任务已超过计划时间" if overdue else "任务将在24小时内到期",
+                "triggerReason": f"task:{task.id}:{'overdue' if overdue else 'due'}",
+                "taskId": task.id,
+            })
+
+    if len(candidates) < 3:
+        context = profile_context_data(user)
+        if context["missingFields"]:
+            fields = "、".join(context["missingFields"])
+            candidates.append({
+                "suggestionType": "profile",
+                "priority": "normal",
+                "title": "完善青年画像",
+                "content": f"补充{fields}，可以获得更准确的成长建议",
+                "reason": "画像信息尚不完整",
+                "triggerReason": "missing:" + ",".join(context["missingFields"]),
+            })
+
+    if len(candidates) < 3:
+        matched = match_resources(user, limit=1)["items"]
+        if matched:
+            resource = matched[0]
+            candidates.append({
+                "suggestionType": "resource",
+                "priority": "normal",
+                "title": "今日匹配资源",
+                "content": f"可以了解：{resource['title']}",
+                "reason": resource["reasons"][0],
+                "triggerReason": f"resource:{resource['resourceType']}:{resource['resourceId']}",
+                "resourceType": resource["resourceType"],
+                "resourceId": resource["resourceId"],
+            })
+
+    suggestions = candidates[:3]
+    for item in suggestions:
+        stored = ProactiveSuggestion.objects.filter(
+            user=user,
+            suggestion_type=item["suggestionType"],
+            trigger_reason=item["triggerReason"],
+            scheduled_for__date=now.date(),
+        ).first()
+        if not stored:
+            stored = ProactiveSuggestion.objects.create(
+                user=user,
+                suggestion_type=item["suggestionType"],
+                content=item["content"],
+                trigger_reason=item["triggerReason"],
+                scheduled_for=now,
+            )
+        item["suggestionId"] = stored.id
+        item.pop("triggerReason", None)
+
+    return {"suggestions": suggestions, "plan": _plan_summary(plan)}
