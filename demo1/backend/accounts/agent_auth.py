@@ -10,7 +10,9 @@ from .models import AgentToolLog, AgentUserBinding
 
 
 def _request_summary(data):
-    summary = {"fields": sorted(data.keys())}
+    summary = {"fields": sorted(data.keys()), "externalUserId": str(data.get("externalUserId", ""))[:80]}
+    has_token = bool(data.get("bindingToken"))
+    summary["hasBindingToken"] = has_token
     for field in ("action", "resourceId", "resourceType", "operation"):
         if field in data:
             summary[field] = data[field]

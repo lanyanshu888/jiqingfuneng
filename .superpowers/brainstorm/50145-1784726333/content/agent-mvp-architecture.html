@@ -1,0 +1,35 @@
+<h2>冀青智引 Agent MVP 架构</h2>
+<p class="subtitle">小艺负责自然交互与编排，Django 负责可信数据、业务规则和用户成长记忆。</p>
+
+<div class="mockup">
+  <div class="mockup-header">用户一次提问如何被处理</div>
+  <div class="mockup-body">
+    <div class="section" style="text-align:center">
+      <div class="mock-content" style="border:2px solid #7c3aed;padding:16px;border-radius:10px">
+        <strong>小艺 Agent</strong><br>文本 / 语音对话 · 意图识别 · 任务编排 · 主动提醒
+      </div>
+      <div style="font-size:24px;margin:8px 0">↓ 调用受控 Skills / HTTPS 工具</div>
+      <div class="cards" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card"><div class="card-body"><h3>画像 Skill</h3><p>读取、补全青年画像</p></div></div>
+        <div class="card"><div class="card-body"><h3>规划 Skill</h3><p>生成阶段成长路径</p></div></div>
+        <div class="card"><div class="card-body"><h3>政策 Skill</h3><p>检索政策并说明依据</p></div></div>
+        <div class="card"><div class="card-body"><h3>资源 Skill</h3><p>匹配岗位、课程和活动</p></div></div>
+      </div>
+      <div style="font-size:24px;margin:8px 0">↓</div>
+      <div class="mock-content" style="border:2px solid #2563eb;padding:16px;border-radius:10px">
+        <strong>Django Agent API</strong><br>身份校验 · 工具参数校验 · 业务规则 · 对话/计划记录 · 安全审计
+      </div>
+      <div style="font-size:24px;margin:8px 0">↓</div>
+      <div class="mock-content" style="border:2px solid #16a34a;padding:16px;border-radius:10px">
+        <strong>可信数据层</strong><br>青年画像 · 政策来源与有效期 · 岗位/课程/活动 · 成长记录
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-agent-architecture" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>确认该架构</h3><p>小艺负责“会理解、会对话”，Django 负责“数据可信、动作可执行”。</p></div>
+  </div>
+</div>
