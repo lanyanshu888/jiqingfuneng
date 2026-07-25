@@ -3,6 +3,22 @@ import { AppTheme } from '../../theme/AppTheme';
 import { BackendProfile } from '../../models/ProfileModels';
 import { ProfileRepository } from '../../repositories/ProfileRepository';
 import { authStore } from '../../core/auth/AuthStore';
+import { DemoState } from '../../state/DemoState';
+import { PROFILE_FIXTURE } from '../../mock/MockFixtures';
+
+const DEMO_PROFILE: BackendProfile = {
+  nickname: '冀青青年',
+  age: null,
+  region: '河北省沧州市',
+  education: '本科',
+  major: '计算机科学与技术',
+  status: '在校大学生',
+  type: '成长探索型青年',
+  intents: ['县域数字化运营', '人工智能应用', '寻找实习'],
+  abilities: ['Python基础', '数据分析', '英语沟通'],
+  tags: [],
+  summary: '希望在三个月内完成技能提升，并寻找河北本地数字化或人工智能相关实习机会。'
+};
 
 @Entry
 @Component
@@ -19,9 +35,17 @@ struct ProfilePage {
   @State editAbilities: string = '';
   @State editSummary: string = '';
   @State isEditing: boolean = false;
+  @State isDemo: boolean = false;
   private repository: ProfileRepository = new ProfileRepository();
 
   async aboutToAppear(): Promise<void> {
+    this.isDemo = DemoState.isActive();
+    if (this.isDemo) {
+      this.profile = DEMO_PROFILE;
+      this.syncEditsFromProfile(DEMO_PROFILE);
+      this.loading = false;
+      return;
+    }
     await this.loadProfile();
   }
 
@@ -65,6 +89,28 @@ struct ProfilePage {
     this.saving = true;
     this.message = '';
     try {
+      if (this.isDemo) {
+        const intentsArr = this.editIntents.split('、').filter((s: string) => s.trim().length > 0);
+        const abilitiesArr = this.editAbilities.split('、').filter((s: string) => s.trim().length > 0);
+        const updated: BackendProfile = {
+          nickname: this.profile ? this.profile.nickname : DEMO_PROFILE.nickname,
+          age: null,
+          region: this.editRegion,
+          education: this.editEducation,
+          major: this.editMajor,
+          status: this.editStatus,
+          type: this.profile ? this.profile.type : DEMO_PROFILE.type,
+          intents: intentsArr,
+          abilities: abilitiesArr,
+          tags: [],
+          summary: this.editSummary
+        };
+        this.profile = updated;
+        this.message = '画像保存成功（仅本次有效）';
+        this.isEditing = false;
+        this.saving = false;
+        return;
+      }
       const intentsArr = this.editIntents.split('、').filter((s: string) => s.trim().length > 0);
       const abilitiesArr = this.editAbilities.split('、').filter((s: string) => s.trim().length > 0);
       const data = await this.repository.saveMyProfile({
@@ -105,6 +151,18 @@ struct ProfilePage {
           .fontColor($r('app.color.text_primary'))
           .width('100%');
 
+        if (this.isDemo) {
+          Row() {
+            Text('演示数据')
+              .fontSize(13)
+              .fontColor($r('app.color.primary'))
+              .fontWeight(FontWeight.Bold);
+          }
+          .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+          .backgroundColor($r('app.color.primary_light'))
+          .borderRadius(8);
+        }
+
         if (this.loading) {
           Text('加载中...')
             .fontSize(AppTheme.BODY_SIZE)
@@ -120,7 +178,6 @@ struct ProfilePage {
           };
         } else if (this.profile !== null) {
           if (this.isEditing) {
-            // 编辑模式
             Column({ space: 12 }) {
               Text('地区').fontSize(AppTheme.CAPTION_SIZE).fontColor($r('app.color.text_secondary'));
               TextInput({ placeholder: '请输入地区', text: this.editRegion })
@@ -163,7 +220,6 @@ struct ProfilePage {
                 .onClick(() => this.saveProfile());
             };
           } else {
-            // 查看模式
             Column({ space: 8 }) {
               this.profileField('昵称', this.profile.nickname);
               this.profileField('地区', this.profile.region || '未填写');

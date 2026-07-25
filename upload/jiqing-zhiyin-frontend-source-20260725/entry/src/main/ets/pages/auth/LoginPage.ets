@@ -1,6 +1,8 @@
 import { router } from '@kit.ArkUI';
+import { promptAction } from '@kit.ArkUI';
 import { AppTheme } from '../../theme/AppTheme';
 import { appState } from '../../state/AppState';
+import { DemoState } from '../../state/DemoState';
 
 @Entry
 @Component
@@ -50,7 +52,7 @@ struct LoginPage {
           } catch (error) {
             const msg = String(error);
             if (msg.includes('网络') || msg.includes('连接') || msg.includes('服务器')) {
-              this.message = '无法连接服务器，请检查网络';
+              this.message = '无法连接服务器，请检查网络或进入演示模式';
             } else if (msg.includes('401') || msg.includes('密码') || msg.includes('用户')) {
               this.message = '用户名或密码错误';
             } else {
@@ -75,6 +77,30 @@ struct LoginPage {
       .onClick(() => {
         router.pushUrl({ url: 'pages/auth/RegisterPage' });
       });
+
+      Button('进入演示模式')
+        .width('100%')
+        .backgroundColor($r('app.color.primary_light'))
+        .fontColor($r('app.color.primary'))
+        .onClick(() => {
+          AlertDialog.show({
+            title: '进入离线演示',
+            message: '演示模式使用本地示例数据，不会连接服务器，也不会保存为真实账号数据。',
+            primaryButton: {
+              value: '取消',
+              action: () => {}
+            },
+            secondaryButton: {
+              value: '进入演示',
+              fontColor: $r('app.color.primary'),
+              action: () => {
+                DemoState.enter();
+                promptAction.showToast({ message: '已进入离线演示模式', duration: 1500 });
+                router.replaceUrl({ url: 'pages/Index' });
+              }
+            }
+          });
+        });
     }
     .justifyContent(FlexAlign.Center)
     .padding(AppTheme.PAGE_PADDING)

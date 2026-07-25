@@ -7,6 +7,7 @@ import { UserSummary } from '../models/AuthModels';
 import { DashboardResponse } from '../models/PlanModels';
 import { AuthRepository } from '../repositories/AuthRepository';
 import { PlanRepository } from '../repositories/PlanRepository';
+import { DemoState } from './DemoState';
 
 export class AppState {
   private authRepository: AuthRepository = new AuthRepository();
@@ -15,6 +16,9 @@ export class AppState {
   private dashboardData: DashboardResponse | null = null;
 
   async bootstrap(): Promise<boolean> {
+    if (DemoState.isActive()) {
+      return true;
+    }
     const user = await this.authRepository.validateToken();
     if (user) {
       this.currentUser = user;
@@ -25,6 +29,7 @@ export class AppState {
   }
 
   async login(username: string, password: string): Promise<UserSummary> {
+    DemoState.exit();
     const response = await this.authRepository.login({ username, password });
     this.currentUser = response.user;
     await this.refreshDashboard();
@@ -43,6 +48,7 @@ export class AppState {
   }
 
   async logout(): Promise<void> {
+    DemoState.exit();
     const user = await authStore.getUser();
     await this.authRepository.logout();
     if (user) {

@@ -5,6 +5,7 @@ import { MinePage } from './mine/MinePage';
 import { PlanPage } from './plan/PlanPage';
 import { ResourceCenterPage } from './resource/ResourceCenterPage';
 import { appState } from '../state/AppState';
+import { DemoState } from '../state/DemoState';
 
 @Entry
 @Component
@@ -16,6 +17,11 @@ struct Index {
   async aboutToAppear(): Promise<void> {
     AppStorage.setOrCreate<number>('pendingTabIndex', -1);
     AppStorage.setOrCreate<string>('pendingResourceTab', '');
+    await DemoState.waitReady();
+    if (DemoState.isActive()) {
+      this.ready = true;
+      return;
+    }
     const loggedIn = await appState.bootstrap();
     if (!loggedIn) {
       router.replaceUrl({ url: 'pages/auth/LoginPage' });
