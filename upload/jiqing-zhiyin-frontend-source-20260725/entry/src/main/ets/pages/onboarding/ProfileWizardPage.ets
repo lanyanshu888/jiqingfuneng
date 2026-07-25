@@ -1,11 +1,10 @@
 import { AppTheme } from '../../theme/AppTheme';
 import { ProfileRepository } from '../../repositories/ProfileRepository';
-import { PROFILE_FIXTURE } from '../../mock/MockFixtures';
 
 @Entry
 @Component
 struct ProfileWizardPage {
-  @State goal: string = '县域数字运营';
+  @State goal: string = '';
   @State message: string = '';
   private repository: ProfileRepository = new ProfileRepository();
 
@@ -27,17 +26,15 @@ struct ProfileWizardPage {
         .width('100%')
         .backgroundColor($r('app.color.primary'))
         .onClick(async () => {
-          const result = await this.repository.save({
-            name: PROFILE_FIXTURE.name,
-            region: PROFILE_FIXTURE.region,
-            education: PROFILE_FIXTURE.education,
-            major: PROFILE_FIXTURE.major,
-            goal: this.goal
-            ,
-            skills: PROFILE_FIXTURE.skills,
-            completeness: PROFILE_FIXTURE.completeness
-          });
-          this.message = result.summary;
+          try {
+            const result = await this.repository.saveMyProfile({
+              summary: this.goal
+            });
+            this.message = '画像已保存';
+          } catch (error) {
+            const msg = String(error);
+            this.message = msg.length > 50 ? '保存失败' : msg;
+          }
         });
     }
     .padding(AppTheme.PAGE_PADDING)

@@ -1,3 +1,17 @@
+export interface BackendProfile {
+  nickname: string;
+  age: number | null;
+  region: string;
+  education: string;
+  major: string;
+  status: string;
+  type: string;
+  intents: string[];
+  abilities: string[];
+  tags: string[];
+  summary: string;
+}
+
 export interface YouthProfile {
   name: string;
   region: string;
@@ -15,3 +29,16 @@ export interface ProfileResult {
   suggestions: string[];
 }
 
+export interface ProfileResponse {
+  profile: BackendProfile;
+}
+
+export interface ProfileSaveRequest {
+  region?: string;
+  education?: string;
+  major?: string;
+  status?: string;
+  intents?: string[];
+  abilities?: string[];
+  summary?: string;
+}

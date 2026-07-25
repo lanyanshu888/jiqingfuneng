@@ -1,23 +1,58 @@
-import { ProfileResult, YouthProfile } from '../models/ProfileModels';
-import { PROFILE_FIXTURE, PROFILE_RESULT_FIXTURE } from '../mock/MockFixtures';
+import { BackendProfile, ProfileResponse, ProfileSaveRequest, YouthProfile } from '../models/ProfileModels';
+import { PROFILE_FIXTURE } from '../mock/MockFixtures';
 import { Environment } from '../core/config/Environment';
 import { apiClient } from '../core/http/ApiProvider';
 
 export class ProfileRepository {
-  private profile: YouthProfile = PROFILE_FIXTURE;
+  private cached: BackendProfile | null = null;
 
-  async getMe(): Promise<YouthProfile> {
-    if (!Environment.MOCK_MODE) {
-      return apiClient.get<YouthProfile>('/profiles/me/');
+  async getMyProfile(): Promise<BackendProfile> {
+    if (Environment.PROFILE_MOCK_MODE) {
+      return this.mockToBackend(PROFILE_FIXTURE);
     }
-    return this.profile;
+    const data = await apiClient.get<ProfileResponse>('/profiles/me/');
+    this.cached = data.profile;
+    return data.profile;
   }
 
-  async save(profile: YouthProfile): Promise<ProfileResult> {
-    if (!Environment.MOCK_MODE) {
-      return apiClient.post<ProfileResult>('/profiles/me/', profile);
+  async saveMyProfile(request: ProfileSaveRequest): Promise<BackendProfile> {
+    if (Environment.PROFILE_MOCK_MODE) {
+      // In mock mode, just update local cache
+      const current = this.cached ? this.cached : this.mockToBackend(PROFILE_FIXTURE);
+      const updated: BackendProfile = {
+        nickname: current.nickname,
+        age: current.age,
+        region: request.region ?? current.region,
+        education: request.education ?? current.education,
+        major: request.major ?? current.major,
+        status: request.status ?? current.status,
+        type: current.type,
+        intents: request.intents ?? current.intents,
+        abilities: request.abilities ?? current.abilities,
+        tags: current.tags,
+        summary: request.summary ?? current.summary
+      };
+      this.cached = updated;
+      return updated;
     }
-    this.profile = profile;
-    return PROFILE_RESULT_FIXTURE;
+    const data = await apiClient.post<ProfileResponse>('/profiles/me/', request);
+    this.cached = data.profile;
+    return data.profile;
+  }
+
+  private mockToBackend(mock: YouthProfile): BackendProfile {
+    return {
+      nickname: mock.name,
+      age: null,
+      region: mock.region,
+      education: mock.education,
+      major: mock.major,
+      status: '',
+      type: '',
+      intents: [mock.goal],
+      abilities: mock.skills,
+      tags: [],
+      summary: ''
+    };
   }
 }
