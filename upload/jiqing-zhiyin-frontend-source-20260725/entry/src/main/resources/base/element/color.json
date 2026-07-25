@@ -1,0 +1,14 @@
+{
+  "color": [
+    { "name": "app_background", "value": "#F7FAF8" },
+    { "name": "surface", "value": "#FFFFFF" },
+    { "name": "primary", "value": "#167D74" },
+    { "name": "primary_light", "value": "#DDF3EF" },
+    { "name": "accent", "value": "#F29B52" },
+    { "name": "text_primary", "value": "#17312F" },
+    { "name": "text_secondary", "value": "#607572" },
+    { "name": "divider", "value": "#E2EBE8" },
+    { "name": "danger", "value": "#C94B45" }
+  ]
+}
+

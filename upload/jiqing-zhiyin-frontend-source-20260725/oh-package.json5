@@ -1,0 +1,10 @@
+{
+  "modelVersion": "6.1.1",
+  "name": "jiqing-zhiyin",
+  "version": "1.0.0",
+  "description": "冀青智引 HarmonyOS app",
+  "main": "",
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

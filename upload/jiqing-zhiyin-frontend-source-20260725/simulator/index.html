@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>冀青智引模拟环境</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="phone" aria-label="冀青智引手机模拟器">
+        <header class="status-bar">
+          <span id="clockText">22:56</span>
+          <span id="statusText">Mock 在线</span>
+        </header>
+
+        <section class="screen">
+          <div id="view"></div>
+        </section>
+
+        <nav class="tabbar" id="tabbar" aria-label="主导航">
+          <button class="tab active" data-tab="home">首页</button>
+          <button class="tab" data-tab="plan">规划</button>
+          <button class="tab" data-tab="resource">资源</button>
+          <button class="tab" data-tab="assistant">助手</button>
+          <button class="tab" data-tab="mine">我的</button>
+        </nav>
+      </section>
+
+      <aside class="panel">
+        <h1>冀青智引模拟环境</h1>
+        <p>先在浏览器里验收手机端 MVP 的核心路径：注册登录、画像生成、首页建议、成长规划、资源行动、智能助手、离线只读和桌面卡片。</p>
+        <div class="panel-actions">
+          <button id="resetBtn">重置数据</button>
+          <button id="offlineBtn">切换离线</button>
+        </div>
+        <dl>
+          <div><dt>模式</dt><dd id="modeText">Mock 在线</dd></div>
+          <div><dt>用户</dt><dd id="userText">未登录</dd></div>
+          <div><dt>进度</dt><dd id="progressText">0%</dd></div>
+          <div><dt>当前页</dt><dd id="pageText">启动</dd></div>
+        </dl>
+      </aside>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

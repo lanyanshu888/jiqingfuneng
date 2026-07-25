@@ -1,0 +1,7 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "冀青智引手机端" },
+    { "name": "entryability_desc", "value": "冀青智引入口" },
+    { "name": "notification_permission_reason", "value": "用于提醒你按时完成成长任务、活动和报名事项" }
+  ]
+}

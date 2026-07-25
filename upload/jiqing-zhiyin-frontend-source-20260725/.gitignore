@@ -1,0 +1,14 @@
+.hvigor/
+.idea/
+.preview/
+build/
+entry/build/
+growthform/build/
+oh_modules/
+hvigorw
+hvigorw.bat
+local.properties
+*.hap
+*.hsp
+*.app
+

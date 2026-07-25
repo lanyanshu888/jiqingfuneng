@@ -1,0 +1,15 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/auth/LoginPage",
+    "pages/auth/RegisterPage",
+    "pages/onboarding/ProfileWizardPage",
+    "pages/onboarding/ProfileResultPage",
+    "pages/plan/TaskDetailPage",
+    "pages/resource/ResourceDetailPage",
+    "pages/assistant/AssistantResultPage",
+    "pages/mine/ProfilePage",
+    "pages/mine/RecordsPage",
+    "pages/mine/SettingsPage"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "module": {
+    "name": "growthform",
+    "type": "feature",
+    "description": "$string:module_desc",
+    "deviceTypes": ["phone"],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "extensionAbilities": [
+      {
+        "name": "GrowthFormExtensionAbility",
+        "srcEntry": "./ets/widget/GrowthFormExtensionAbility.ets",
+        "label": "$string:form_name",
+        "description": "$string:form_desc",
+        "type": "form",
+        "metadata": [
+          {
+            "name": "ohos.extension.form",
+            "resource": "$profile:form_config"
+          }
+        ]
+      }
+    ]
+  }
+}
+
