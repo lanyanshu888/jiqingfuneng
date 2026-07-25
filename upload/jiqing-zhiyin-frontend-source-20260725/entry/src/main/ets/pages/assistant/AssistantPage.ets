@@ -1,3 +1,5 @@
+import { router } from '@kit.ArkUI';
+import { promptAction } from '@kit.ArkUI';
 import { AppTheme } from '../../theme/AppTheme';
 import { AssistantResult } from '../../models/AssistantModels';
 import { DAILY_SUGGESTION_FIXTURE } from '../../mock/MockFixtures';
@@ -5,25 +7,6 @@ import { DAILY_SUGGESTION_FIXTURE } from '../../mock/MockFixtures';
 @Component
 export struct AssistantPage {
   @State result: AssistantResult = DAILY_SUGGESTION_FIXTURE;
-
-  @Builder
-  actionCard(title: string, summary: string, action: () => void) {
-    Column({ space: 8 }) {
-      Text(title)
-        .fontSize(17)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.text_primary'));
-      Text(summary)
-        .fontSize(AppTheme.BODY_SIZE)
-        .fontColor($r('app.color.text_secondary'));
-    }
-    .alignItems(HorizontalAlign.Start)
-    .padding(AppTheme.PAGE_PADDING)
-    .width('100%')
-    .backgroundColor($r('app.color.surface'))
-    .borderRadius(AppTheme.CARD_RADIUS)
-    .onClick(action);
-  }
 
   build() {
     Scroll() {
@@ -37,40 +20,111 @@ export struct AssistantPage {
           .fontSize(AppTheme.BODY_SIZE)
           .fontColor($r('app.color.text_secondary'))
           .width('100%');
-        this.actionCard('画像分析', '基于你的资料生成成长画像', () => {
-          this.result = {
-            action: 'profile_analysis',
-            title: '画像分析',
-            message: '你当前更接近就业准备型，适合从县域数字运营切入。',
-            cards: []
-          };
+
+        // 画像分析
+        Column({ space: 8 }) {
+          Text('画像分析')
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'));
+          Text('基于你的资料生成成长画像')
+            .fontSize(AppTheme.BODY_SIZE)
+            .fontColor($r('app.color.text_secondary'));
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding(AppTheme.PAGE_PADDING)
+        .width('100%')
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(AppTheme.CARD_RADIUS)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          promptAction.showToast({ message: '点击画像分析', duration: 1000 });
+          router.pushUrl({ url: 'pages/mine/ProfilePage' });
         });
-        this.actionCard('生成职业计划', '按目标生成 7 天、1 个月、3 个月行动建议', () => {
-          this.result = {
-            action: 'career_plan',
-            title: '职业计划',
-            message: '已按县域数字运营生成成长计划。',
-            cards: []
-          };
+
+        // 生成职业计划
+        Column({ space: 8 }) {
+          Text('生成职业计划')
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'));
+          Text('按目标生成 7 天、1 个月、3 个月行动建议')
+            .fontSize(AppTheme.BODY_SIZE)
+            .fontColor($r('app.color.text_secondary'));
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding(AppTheme.PAGE_PADDING)
+        .width('100%')
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(AppTheme.CARD_RADIUS)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          promptAction.showToast({ message: '点击职业计划', duration: 1000 });
+          AppStorage.setOrCreate<number>('pendingTabIndex', 1);
         });
-        this.actionCard('政策搜索', '快速找到地区和关键词相关政策', () => {
-          this.result = {
-            action: 'policy_search',
-            title: '政策搜索',
-            message: '已找到高校毕业生就业相关政策。',
-            cards: []
-          };
+
+        // 政策搜索
+        Column({ space: 8 }) {
+          Text('政策搜索')
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'));
+          Text('快速找到地区和关键词相关政策')
+            .fontSize(AppTheme.BODY_SIZE)
+            .fontColor($r('app.color.text_secondary'));
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding(AppTheme.PAGE_PADDING)
+        .width('100%')
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(AppTheme.CARD_RADIUS)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          promptAction.showToast({ message: '点击政策搜索', duration: 1000 });
+          AppStorage.setOrCreate<string>('pendingResourceTab', 'policy');
+          AppStorage.setOrCreate<number>('pendingTabIndex', 2);
         });
-        this.actionCard('资源匹配', '匹配岗位、课程、活动和导师', () => {
-          this.result = {
-            action: 'resource_match',
-            title: '资源匹配',
-            message: '已匹配到适合你的成长资源。',
-            cards: []
-          };
+
+        // 资源匹配
+        Column({ space: 8 }) {
+          Text('资源匹配')
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'));
+          Text('匹配岗位、课程、活动和导师')
+            .fontSize(AppTheme.BODY_SIZE)
+            .fontColor($r('app.color.text_secondary'));
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding(AppTheme.PAGE_PADDING)
+        .width('100%')
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(AppTheme.CARD_RADIUS)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          promptAction.showToast({ message: '点击资源匹配', duration: 1000 });
+          AppStorage.setOrCreate<number>('pendingTabIndex', 2);
         });
-        this.actionCard('今日建议', '给出今天最值得完成的一件事', () => {
-          this.result = DAILY_SUGGESTION_FIXTURE;
+
+        // 今日建议
+        Column({ space: 8 }) {
+          Text('今日建议')
+            .fontSize(17)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'));
+          Text('给出今天最值得完成的一件事')
+            .fontSize(AppTheme.BODY_SIZE)
+            .fontColor($r('app.color.text_secondary'));
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding(AppTheme.PAGE_PADDING)
+        .width('100%')
+        .backgroundColor($r('app.color.surface'))
+        .borderRadius(AppTheme.CARD_RADIUS)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          promptAction.showToast({ message: '点击今日建议', duration: 1000 });
+          router.pushUrl({ url: 'pages/assistant/AssistantResultPage' });
         });
       }
       .padding(AppTheme.PAGE_PADDING);
@@ -78,4 +132,3 @@ export struct AssistantPage {
     .backgroundColor($r('app.color.app_background'));
   }
 }
-

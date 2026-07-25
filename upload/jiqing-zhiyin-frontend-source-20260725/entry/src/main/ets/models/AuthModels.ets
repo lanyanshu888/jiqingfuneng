@@ -4,6 +4,10 @@ export interface UserSummary {
   nickname: string;
 }
 
+export interface MeResponse {
+  user: UserSummary;
+}
+
 export interface AuthResponse {
   token: string;
   user: UserSummary;

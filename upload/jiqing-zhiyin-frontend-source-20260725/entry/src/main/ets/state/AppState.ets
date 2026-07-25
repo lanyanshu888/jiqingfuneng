@@ -14,11 +14,14 @@ export class AppState {
   private currentUser: UserSummary | null = null;
   private dashboardData: DashboardResponse | null = null;
 
-  async bootstrap(): Promise<void> {
-    this.currentUser = await authStore.getUser();
-    if (this.currentUser) {
+  async bootstrap(): Promise<boolean> {
+    const user = await this.authRepository.validateToken();
+    if (user) {
+      this.currentUser = user;
       await this.refreshDashboard();
+      return true;
     }
+    return false;
   }
 
   async login(username: string, password: string): Promise<UserSummary> {
@@ -65,4 +68,3 @@ export class AppState {
 }
 
 export const appState = new AppState();
-

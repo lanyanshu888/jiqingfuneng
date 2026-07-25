@@ -1,6 +1,7 @@
 export class Environment {
-  static readonly API_BASE_URL: string = 'https://api.jiqing.invalid/api';
+  static readonly API_BASE_URL: string = 'https://nest-pension-sprint-buys.trycloudflare.com/api';
   static readonly MOCK_MODE: boolean = true;
+  static readonly AUTH_MOCK_MODE: boolean = false;
   static readonly DEBUG: boolean = true;
 
   static assertReadyForRealApi(): void {

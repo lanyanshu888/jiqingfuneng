@@ -8,6 +8,15 @@ export struct ResourceCenterPage {
   @State selectedType: ResourceType = 'policy';
   @State keyword: string = '';
   @State resources: GrowthResource[] = RESOURCES_FIXTURE;
+  @StorageLink('pendingResourceTab') pendingResourceTab: string = '';
+
+  aboutToAppear(): void {
+    const preset = this.pendingResourceTab as string;
+    if (preset === 'policy' || preset === 'opportunity' || preset === 'course' || preset === 'activity' || preset === 'mentor') {
+      this.selectedType = preset as ResourceType;
+      AppStorage.setOrCreate<string>('pendingResourceTab', '');
+    }
+  }
 
   private typeLabel(type: ResourceType): string {
     if (type === 'policy') {

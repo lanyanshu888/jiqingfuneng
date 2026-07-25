@@ -11,4 +11,7 @@ local.properties
 *.hap
 *.hsp
 *.app
+*.broken-backup
+*.temp
+*.tmp
 
