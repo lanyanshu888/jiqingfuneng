@@ -36,7 +36,6 @@ class AgentActionTests(TestCase):
             self.endpoint,
             data=json.dumps({
                 "externalUserId": "xy-action",
-                "bindingToken": "action-binding-token",
                 **payload,
             }),
             content_type="application/json",

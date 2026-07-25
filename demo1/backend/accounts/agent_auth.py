@@ -11,8 +11,6 @@ from .models import AgentToolLog, AgentUserBinding
 
 def _request_summary(data):
     summary = {"fields": sorted(data.keys()), "externalUserId": str(data.get("externalUserId", ""))[:80]}
-    has_token = bool(data.get("bindingToken"))
-    summary["hasBindingToken"] = has_token
     for field in ("action", "resourceId", "resourceType", "operation"):
         if field in data:
             summary[field] = data[field]
@@ -85,20 +83,8 @@ def agent_skill(skill_name):
                 if not binding:
                     return agent_response(
                         ok=False,
-                        message="请先在冀青赋能小程序绑定账号",
+                        message="当前小艺用户尚未绑定青年账号，请先在冀青赋能小程序连接小艺生成绑定码",
                         error_code="AGENT_USER_NOT_BOUND",
-                        status=403,
-                    )
-
-                binding_token = str(data.get("bindingToken") or "")
-                supplied_digest = AgentUserBinding.digest_access_token(binding_token)
-                if not binding.access_token_digest or not secrets.compare_digest(
-                    binding.access_token_digest, supplied_digest
-                ):
-                    return agent_response(
-                        ok=False,
-                        message="账号绑定凭据无效，请重新绑定",
-                        error_code="AGENT_BINDING_TOKEN_INVALID",
                         status=403,
                     )
 

@@ -37,7 +37,6 @@ class AgentMatchingTests(TestCase):
             endpoint,
             data=json.dumps({
                 "externalUserId": "xy-match",
-                "bindingToken": "match-binding-token",
                 **payload,
             }),
             content_type="application/json",

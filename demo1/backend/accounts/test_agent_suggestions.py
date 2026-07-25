@@ -44,7 +44,6 @@ class AgentSuggestionTests(TestCase):
             self.endpoint,
             data=json.dumps({
                 "externalUserId": "xy-daily",
-                "bindingToken": "daily-binding-token",
             }),
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",

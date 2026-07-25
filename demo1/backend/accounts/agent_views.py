@@ -158,7 +158,6 @@ def bind_account(request):
         data={
             "bound": True,
             "platform": "xiaoyi",
-            "bindingToken": binding_token,
         },
     )
 
@@ -168,7 +167,8 @@ def bind_account(request):
 @agent_skill("profile_context")
 def profile_context(request):
     data = request.agent_data
-    if data.get("operation") == "update":
+    operation = data.get("operation", "read")
+    if operation == "update":
         changes = data.get("changes") if isinstance(data.get("changes"), dict) else {}
         if data.get("confirmed") is not True:
             confirmation_token = prepare_profile_confirmation(
@@ -199,10 +199,22 @@ def profile_context(request):
         context = update_profile_from_agent(request.agent_user, changes)
         return agent_response(ok=True, message="青年画像已更新", data=context)
 
+    context = profile_context_data(request.agent_user)
+    profile = context.get("profile", {})
+    parts = []
+    if profile.get("region"): parts.append(f"地区：{profile['region']}")
+    if profile.get("education"): parts.append(f"学历：{profile['education']}")
+    if profile.get("major"): parts.append(f"专业：{profile['major']}")
+    if profile.get("status"): parts.append(f"状态：{profile['status']}")
+    if profile.get("intents"): parts.append(f"意向：{'、'.join(profile['intents'])}")
+    if profile.get("abilities"): parts.append(f"能力：{'、'.join(profile['abilities'])}")
+    if profile.get("summary"): parts.append(f"简介：{profile['summary']}")
+    if profile.get("nickname"): parts.append(f"昵称：{profile['nickname']}")
+    message = "画像已读取。" + "；".join(parts)
     return agent_response(
         ok=True,
-        message="画像已读取",
-        data=profile_context_data(request.agent_user),
+        message=message,
+        data=context,
     )
 
 

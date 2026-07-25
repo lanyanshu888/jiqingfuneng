@@ -10,12 +10,11 @@ from .models import AgentToolLog, Enrollment, GrowthEvent, GrowthPlan
 
 @override_settings(AGENT_SERVICE_KEY="test-agent-key")
 class AgentDemoFlowTests(TestCase):
-    def skill_post(self, endpoint, external_user_id, binding_token, payload=None):
+    def skill_post(self, endpoint, external_user_id, payload=None):
         return self.client.post(
             endpoint,
             data=json.dumps({
                 "externalUserId": external_user_id,
-                "bindingToken": binding_token,
                 **(payload or {}),
             }),
             content_type="application/json",
@@ -46,39 +45,34 @@ class AgentDemoFlowTests(TestCase):
             content_type="application/json",
             HTTP_X_AGENT_SERVICE_KEY="test-agent-key",
         )
-        binding_token = bound.json()["data"]["bindingToken"]
+        self.assertNotIn("bindingToken", bound.json().get("data", {}))
         profile = self.skill_post(
-            "/api/agent/skills/profile-context/", external_user_id, binding_token
+            "/api/agent/skills/profile-context/", external_user_id
         )
         plan = self.skill_post(
             "/api/agent/skills/career-plan/",
             external_user_id,
-            binding_token,
             {"goal": "在河北县域从事数字运营"},
         )
         policies = self.skill_post(
             "/api/agent/skills/policy-search/",
             external_user_id,
-            binding_token,
             {"keyword": "就业", "region": "沧州"},
         )
         resources = self.skill_post(
             "/api/agent/skills/resource-match/",
             external_user_id,
-            binding_token,
             {"resourceTypes": ["activity"]},
         )
         activity_id = resources.json()["data"]["items"][0]["resourceId"]
         preview = self.skill_post(
             "/api/agent/skills/growth-action/",
             external_user_id,
-            binding_token,
             {"action": "enroll_activity", "resourceId": activity_id},
         )
         executed = self.skill_post(
             "/api/agent/skills/growth-action/",
             external_user_id,
-            binding_token,
             {
                 "action": "enroll_activity",
                 "resourceId": activity_id,
@@ -87,7 +81,7 @@ class AgentDemoFlowTests(TestCase):
             },
         )
         daily = self.skill_post(
-            "/api/agent/skills/daily-suggestion/", external_user_id, binding_token
+            "/api/agent/skills/daily-suggestion/", external_user_id
         )
 
         self.assertEqual(bound.status_code, 200)

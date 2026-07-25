@@ -32,7 +32,6 @@ class AgentPlanningTests(TestCase):
             self.endpoint,
             data=json.dumps({
                 "externalUserId": "xy-plan",
-                "bindingToken": "plan-binding-token",
                 **payload,
             }),
             content_type="application/json",

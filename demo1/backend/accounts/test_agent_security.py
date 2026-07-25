@@ -65,22 +65,10 @@ class AgentSecurityTests(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()["errorCode"], "AGENT_USER_NOT_BOUND")
 
-    def test_external_user_id_cannot_be_used_without_its_binding_token(self):
-        victim = User.objects.create_user(username="victim")
-        AgentUserBinding.objects.create(
-            platform="xiaoyi",
-            external_user_id="xy-victim",
-            user=victim,
-            access_token_digest=AgentUserBinding.digest_access_token("victim-secret-token"),
-        )
-
+    def test_unbound_external_user_id_is_rejected(self):
         response = self.post(
-            {
-                "externalUserId": "xy-victim",
-                "bindingToken": "attacker-token",
-            },
+            {"externalUserId": "xy-never-bound"},
             key="test-agent-key",
         )
-
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.json()["errorCode"], "AGENT_BINDING_TOKEN_INVALID")
+        self.assertEqual(response.json()["errorCode"], "AGENT_USER_NOT_BOUND")

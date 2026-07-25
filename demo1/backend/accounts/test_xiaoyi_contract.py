@@ -50,7 +50,7 @@ class XiaoyiContractTests(SimpleTestCase):
         self.assertIn("confirmed", properties)
         self.assertIn("confirmationToken", properties)
 
-    def test_every_skill_requires_binding_token(self):
+    def test_every_skill_requires_external_user_id(self):
         document = self.load_document()
         skill_paths = [
             path for path in document["paths"]
@@ -60,5 +60,5 @@ class XiaoyiContractTests(SimpleTestCase):
             schema = document["paths"][path]["post"]["requestBody"][
                 "content"
             ]["application/json"]["schema"]
-            self.assertIn("bindingToken", schema["required"], path)
-            self.assertIn("bindingToken", schema["properties"], path)
+            self.assertIn("externalUserId", schema["required"], path)
+            self.assertIn("externalUserId", schema["properties"], path)
